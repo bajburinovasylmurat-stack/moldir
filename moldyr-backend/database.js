@@ -16,13 +16,14 @@ function getDb() {
   if (_db) return _db;
   const adapter = new FileSync(DB_FILE);
   _db = low(adapter);
+  const defaultPass = process.env.ADMIN_PASSWORD || 'admin2024';
   _db.defaults({
     events:   [],
     votes:    [],
     media:    [],
     sponsors: [],
     settings: {
-      admin_password_hash: bcrypt.hashSync('admin2024', 10),
+      admin_password_hash: bcrypt.hashSync(defaultPass, 10),
       whatsapp:            '+77016202086',
       kaspi_link:          'https://kaspi.kz/pay',
       kaspi_merchant:      '',
