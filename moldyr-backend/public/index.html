@@ -646,8 +646,7 @@ window.selVote=function(eid,ch){vSess[eid]={...(vSess[eid]||{}),choice:ch};saveV
 window.submitVote=async function(eid){
   const vs=vSess[eid]||{};if(!vs.choice)return;
   try{
-    const voteToken=localStorage.getItem('mo_voted_'+eid)||uid();
-    localStorage.setItem('mo_voted_'+eid,voteToken);
+    const voteToken=uid();
     await api('POST','/votes',{eventId:eid,regionChoice:vs.choice,token:voteToken});
     vSess[eid]={paid:false,choice:null};saveVSess();
     toast('Дауысыңыз қабылданды! ✅ Қайта дауыс беру үшін 200 ₸ төлеңіз.','ok');
