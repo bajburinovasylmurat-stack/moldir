@@ -53,6 +53,7 @@ function createEvent(data) {
     id: uuid(), date: data.date, time: data.time || '19:00',
     region1: data.region1 || '', region2: data.region2 || '',
     poetsInfo: data.poetsInfo || '',
+    guest: data.guest || null,
     poster: data.poster || null, ticketPrice: data.ticketPrice || 3000,
     totalTickets: data.totalTickets || 100,
     remainingTickets: data.remainingTickets ?? data.totalTickets ?? 100,
