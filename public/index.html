@@ -147,6 +147,7 @@ tr:hover td{color:var(--txt)}
 .toast.err{background:#3d1a1a;border:1px solid rgba(201,68,68,.4);color:#f08080}
 .toast.info{background:#1a1a3d;border:1px solid rgba(139,111,212,.4);color:#c0aaff}
 @keyframes tslide{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;margin-top:4rem}
 .kaspi-info{background:rgba(255,65,105,.06);border:1px solid rgba(255,65,105,.2);border-radius:12px;padding:1.1rem 1.4rem;display:flex;align-items:center;gap:.9rem;margin-bottom:1.4rem;font-size:.88rem;color:var(--txt2);line-height:1.6}
 .poet-info-box{background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.15);border-radius:10px;padding:1rem;margin-top:.5rem;font-size:.88rem;color:var(--txt2);line-height:1.7;white-space:pre-wrap}
@@ -187,6 +188,17 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
   <div class="container" style="padding-top:1rem">
     <div id="homeToday"></div>
     <div id="homeUp"></div>
+    <a href="https://www.youtube.com/@moldirolen" target="_blank" style="display:flex;align-items:center;gap:1.2rem;background:linear-gradient(135deg,rgba(255,0,0,.08),rgba(255,0,0,.03));border:1px solid rgba(255,0,0,.2);border-radius:16px;padding:1.2rem 1.6rem;margin-bottom:2rem;text-decoration:none;transition:.2s;cursor:pointer" onmouseover="this.style.borderColor='rgba(255,0,0,.5)'" onmouseout="this.style.borderColor='rgba(255,0,0,.2)'">
+      <div style="width:48px;height:48px;background:#ff0000;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 18px rgba(255,0,0,.35)">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="white"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+      </div>
+      <div>
+        <div style="color:#ff4444;font-size:.72rem;font-family:sans-serif;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.2rem">▶ YouTube</div>
+        <div style="color:var(--txt);font-size:1rem;font-weight:600">Тікелей эфир</div>
+        <div style="color:var(--txt3);font-size:.78rem;font-family:sans-serif;margin-top:.15rem">@moldirolen каналына өту →</div>
+      </div>
+      <div style="margin-left:auto;width:10px;height:10px;background:#ff4444;border-radius:50%;box-shadow:0 0 8px #ff4444;animation:blink 1.2s infinite"></div>
+    </a>
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num">20</div><div class="stat-lbl">Өңір</div></div>
       <div class="stat-card"><div class="stat-num">60</div><div class="stat-lbl">Ақын</div></div>
