@@ -164,7 +164,16 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
     <button class="nav-item" onclick="go('vote')" data-p="vote">Дауыс беру</button>
     <button class="nav-item" onclick="go('about')" data-p="about">Жоба туралы</button>
     <button class="nav-item" onclick="go('media')" data-p="media">БАҚ</button>
-    
+  </div>
+  <div style="display:flex;align-items:center;gap:.6rem;flex-shrink:0">
+    <svg width="36" height="36" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="80" rx="6" fill="#1a7f8f"/>
+      <path d="M15 20 Q40 10 65 20 L65 58 Q40 48 15 58 Z" fill="white" opacity=".9"/>
+      <path d="M40 10 L40 58" stroke="#1a7f8f" stroke-width="2"/>
+      <path d="M55 8 Q58 25 52 42" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M52 42 L48 50 L55 44 Z" fill="white"/>
+    </svg>
+    <div style="font-family:sans-serif;line-height:1.2;font-size:.6rem;font-weight:700;color:#1a7f8f;letter-spacing:.05em">ҚАЗАҚСТАН<br>ЖАЗУШЫЛАР<br>ОДАҒЫ</div>
   </div>
 </nav>
 
@@ -194,6 +203,7 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
   </div>
   <footer>
     <div class="ornament" style="margin-bottom:.6rem">✦ МӨЛДІР ӨЛЕҢ ✦</div>
+    <div style="color:var(--gold);font-size:.85rem;font-family:sans-serif;margin-bottom:.4rem;letter-spacing:.05em">📍 <a href="https://2gis.kz/almaty/geo/70000001089851463" target="_blank" style="color:var(--gold);text-decoration:none">Azure мейрамханасы, Алматы</a></div>
     <div style="color:var(--txt3);font-size:.78rem;font-family:sans-serif;line-height:1.7">© 2025–2026 · Алматы · Жоба авторы: Мөлдір Айтбай · <a href="https://instagram.com/maitbay" target="_blank" style="color:var(--gold)">@maitbay</a></div>
   </footer>
 </div>
@@ -226,7 +236,7 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
     <p style="color:var(--txt2);line-height:1.9;margin-bottom:1.4rem">«Мөлдір Өлең» — Қазақстан Республикасы көлемінде өткізілетін ұлттық поэзиялық жоба. Мақсаты — қазақ поэзиясын дамыту, дарынды ақындарды қолдау, ұлттық әдебиетті насихаттау.</p>
     <p style="color:var(--txt2);line-height:1.9;margin-bottom:2.5rem">Алматы қаласында «Ажурь» мейрамханасының терассасында 20 мамырдан 16 қыркүйекке дейін әр сәрсенбі кешкі 19:00-де өтеді.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2.5rem">
-      <div class="card"><h3>Бас жүлде</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">100 г алтын + 3 карат бриллиант + <strong style="color:var(--gold2)">3 000 000 ₸</strong></p></div>
+      <div class="card"><h3>Бас жүлде</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.9">«Мөлдір өлең» ауыспалы статуеткасы<br>100 г алтын + 3 карат бриллиант<br><strong style="color:var(--gold2)">3 000 000 ₸</strong></p></div>
       <div class="card"><h3>Қатысушыларға</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">Барлық ақынға <strong style="color:var(--gold2)">100 000 ₸</strong></p></div>
       <div class="card"><h3>Формат</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">20 команда · 18 кеш · 3 кезең</p></div>
       <div class="card"><h3>Дауыс беру</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">Каспи · 200 ₸ = 1 дауыс</p></div>
@@ -367,6 +377,8 @@ async function loadHome(){
   try{
     const [todayEv,all]=await Promise.all([api('GET','/events/voting'),api('GET','/events')]);
     if(todayEv){
+      let hv={r1Count:0,r2Count:0};
+      try{hv=await api('GET','/votes/'+todayEv.id);}catch(e){}
 
       te.innerHTML=`<div class="today-card">
         <div class="eyebrow">БҮГІНГІ АЙТЫС · ${fd(todayEv.date)} · ${todayEv.time}</div>
@@ -375,12 +387,14 @@ async function loadHome(){
           <div class="region-box r1-box">
             <div style="font-size:1.3rem">🏴</div>
             <div class="region-name" style="color:var(--gold)">${todayEv.region1}</div>
+            <div style="font-size:1.8rem;font-weight:700;color:var(--gold);margin:.3rem 0">${hv.r1Count||0}</div>
             <div class="region-lbl">1-Қарсылас</div>
           </div>
           <div style="font-size:1.7rem;color:var(--txt3);flex-shrink:0">⚔</div>
           <div class="region-box r2-box">
             <div style="font-size:1.3rem">🏴</div>
             <div class="region-name" style="color:var(--accent)">${todayEv.region2}</div>
+            <div style="font-size:1.8rem;font-weight:700;color:var(--accent);margin:.3rem 0">${hv.r2Count||0}</div>
             <div class="region-lbl">2-Қарсылас</div>
           </div>
         </div>
