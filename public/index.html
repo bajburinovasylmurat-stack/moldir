@@ -478,6 +478,7 @@ function openBuy(ev){
         ${ev.poetsInfo.split('\\n').filter(l=>l.trim()).map(line=>`<div style="display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.4rem"><span style="color:var(--gold);flex-shrink:0">•</span><span style="color:var(--txt2);font-size:.88rem;line-height:1.7">${line}</span></div>`).join('')}
       </div>
     </div>`:`<p style="color:var(--txt3);font-size:.88rem;margin-bottom:1rem;text-align:center">Айтыскерлер туралы ақпарат жоқ</p>`}
+    ${ev.guest?`<div style="display:flex;align-items:center;gap:.8rem;background:rgba(138,111,212,.07);border:1px solid rgba(138,111,212,.25);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:.8rem"><span style="font-size:1.1rem">🎤</span><div><div style="font-size:.68rem;color:var(--accent);font-family:sans-serif;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.15rem">Кеш қонағы</div><div style="color:var(--txt);font-size:.9rem;font-weight:600">${ev.guest}</div></div></div>`:''}
     <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.2rem">
       <span style="color:var(--txt2);font-size:.88rem">Билет бағасы</span>
       <span style="font-size:1.3rem;color:var(--gold2);font-weight:700">${(ev.ticketPrice||0).toLocaleString('ru')} ₸</span>
@@ -746,7 +747,7 @@ async function aEvents(){
   const c=document.getElementById('adminMain');
   try{
     const evs=await api('GET','/events');
-    c.innerHTML=`<div class="admin-hdr"><h2 style="margin:0">Дуэльді басқару</h2><button class="btn btn-gold btn-sm" onclick="openEvModal(null)">+ Айтыс қосу</button></div>
+    c.innerHTML=`<div class="admin-hdr"><h2 style="margin:0">Дуэльді басқару</h2><button class="btn btn-gold btn-sm" onclick="openEvModal(null)">+ Келесі жекпе-жек</button></div>
     ${!evs.length?'<div class="empty"><div class="empty-icon">📅</div><div class="empty-msg">Айтыс жоқ. Жаңасын қосыңыз.</div></div>':
     `<div class="tbl-wrap"><table><thead><tr><th>Күні</th><th>Уақыт</th><th>1-өңір</th><th>2-өңір</th><th>Баға</th><th>Орын</th><th>Белсенді</th><th></th></tr></thead><tbody>
     ${evs.map(ev=>`<tr><td>${fd(ev.date)}</td><td>${ev.time}</td><td style="color:var(--gold)">${ev.region1}</td><td style="color:var(--accent)">${ev.region2}</td><td>${(ev.ticketPrice||0).toLocaleString('ru')} ₸</td><td>${ev.remainingTickets}/${ev.totalTickets}</td><td><span class="tag ${ev.votingOpen?'tag-green':'tag-red'}">${ev.votingOpen?'Дауыс ашық':'Жабық'}</span><br><span class="tag ${ev.active?'tag-green':'tag-red'}" style="margin-top:.25rem">${ev.active?'Белсенді':'Жасырылған'}</span></td>
@@ -758,7 +759,7 @@ async function aEvents(){
 window.openEvModal=function(ev){
   const isNew=!ev;const d=ev||{};
   window._evPoster=d.poster||null;
-  showModal(`<div class="modal-title">${isNew?'➕ Айтыс қосу':'✏ Айтысты өңдеу'}</div>
+  showModal(`<div class="modal-title">${isNew?'➕ Келесі жекпе-жек':'✏ Айтысты өңдеу'}</div>
     <div class="form-row">
       <div class="form-group"><label>Күні *</label><input type="date" id="ef-date" value="${d.date||''}"></div>
       <div class="form-group"><label>Уақыты *</label><input type="time" id="ef-time" value="${d.time||'19:00'}"></div>
@@ -767,6 +768,7 @@ window.openEvModal=function(ev){
       <div class="form-group"><label>1-өңір *</label><input id="ef-r1" value="${d.region1||''}" placeholder="Алматы облысы"></div>
       <div class="form-group"><label>2-өңір *</label><input id="ef-r2" value="${d.region2||''}" placeholder="Шымкент қаласы"></div>
     </div>
+    <div class="form-group"><label>Кеш қонағы</label><input id="ef-guest" value="${d.guest||''}" placeholder="Қонақтың аты-жөні, рөлі..."></div>
     <div class="form-group"><label>Айтыскерлер туралы ақпарат</label><textarea id="ef-poets" rows="3" placeholder="Айтыскерлердің аты-жөні, өмірбаяны, жетістіктері...">${d.poetsInfo||''}</textarea></div>
     <div class="form-row">
       <div class="form-group"><label>Билет бағасы (₸) *</label><input type="number" id="ef-price" value="${d.ticketPrice||3000}"></div>
@@ -798,7 +800,7 @@ window.openEvModal=function(ev){
 
 window.saveEv=async function(id){
   const g=i=>document.getElementById(i)?.value||'';
-  const body={date:g('ef-date'),time:g('ef-time')||'19:00',region1:g('ef-r1'),region2:g('ef-r2'),poetsInfo:g('ef-poets'),ticketPrice:+g('ef-price')||3000,totalTickets:+g('ef-total')||100,remainingTickets:+g('ef-rem'),active:document.getElementById('ef-active')?.checked,votingOpen:document.getElementById('ef-voting')?.checked,kaspiLink:g('ef-kaspi')||null,poster:window._evPoster||null};
+  const body={date:g('ef-date'),time:g('ef-time')||'19:00',region1:g('ef-r1'),region2:g('ef-r2'),guest:g('ef-guest')||null,poetsInfo:g('ef-poets'),ticketPrice:+g('ef-price')||3000,totalTickets:+g('ef-total')||100,remainingTickets:+g('ef-rem'),active:document.getElementById('ef-active')?.checked,votingOpen:document.getElementById('ef-voting')?.checked,kaspiLink:g('ef-kaspi')||null,poster:window._evPoster||null};
   if(!body.date||!body.region1||!body.region2){toast('Күні мен өңірлерді толтырыңыз','err');return;}
   try{
     if(id) await api('PUT','/events/'+id,body);
