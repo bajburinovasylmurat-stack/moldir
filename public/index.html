@@ -302,7 +302,7 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
 </div>
 
 <script>
-const API=location.protocol==='file:'?'http://localhost:3001/api':'/api';
+const API=location.protocol==='file:'?'http://localhost:8080/api':'https://moldir-olen-production.up.railway.app/api';
 let token=localStorage.getItem('mo_token')||'';
 // Load persisted vote state
 let vSess = JSON.parse(localStorage.getItem('mo_votes')||'{}');
