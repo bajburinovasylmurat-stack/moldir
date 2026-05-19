@@ -1,0 +1,6 @@
+node_modules/
+moldyr-backend/node_modules/
+moldyr-backend/moldyr.db
+moldyr-backend/moldyr.json
+moldyr-backend/uploads/
+.env
