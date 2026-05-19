@@ -476,7 +476,7 @@ function openBuy(ev){
       <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:1.2rem;max-height:280px;overflow-y:auto">
         ${ev.poetsInfo.split('\\n').filter(l=>l.trim()).map(line=>`<div style="display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.4rem"><span style="color:var(--gold);flex-shrink:0">•</span><span style="color:var(--txt2);font-size:.88rem;line-height:1.7">${line}</span></div>`).join('')}
       </div>
-    </div>`:`<p style="color:var(--txt3);font-size:.88rem;margin-bottom:1rem;text-align:center">Айтыскерлер туралы ақпарат жоқ</p>`}
+    </div>`:`<p style="color:var(--txt3);font-size:.88rem;margin-bottom:1rem;text-align:center">Ақындар туралы ақпарат жоқ</p>`}
     ${ev.guest?`<div style="display:flex;align-items:center;gap:.8rem;background:rgba(138,111,212,.07);border:1px solid rgba(138,111,212,.25);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:.8rem"><span style="font-size:1.1rem">🎤</span><div><div style="font-size:.68rem;color:var(--accent);font-family:sans-serif;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.15rem">Кеш қонағы</div><div style="color:var(--txt);font-size:.9rem;font-weight:600">${ev.guest}</div></div></div>`:''}
     <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.2rem">
       <span style="color:var(--txt2);font-size:.88rem">Билет бағасы</span>
@@ -768,7 +768,7 @@ window.openEvModal=function(ev){
       <div class="form-group"><label>2-өңір *</label><input id="ef-r2" value="${d.region2||''}" placeholder="Шымкент қаласы"></div>
     </div>
     <div class="form-group"><label>Кеш қонағы</label><input id="ef-guest" value="${d.guest||''}" placeholder="Қонақтың аты-жөні, рөлі..."></div>
-    <div class="form-group"><label>Айтыскерлер туралы ақпарат</label><textarea id="ef-poets" rows="3" placeholder="Айтыскерлердің аты-жөні, өмірбаяны, жетістіктері...">${d.poetsInfo||''}</textarea></div>
+    <div class="form-group"><label>Ақындар туралы ақпарат</label><textarea id="ef-poets" rows="3" placeholder="Ақындардың аты-жөні, өмірбаяны, жетістіктері...">${d.poetsInfo||''}</textarea></div>
     <div class="form-row">
       <div class="form-group"><label>Билет бағасы (₸) *</label><input type="number" id="ef-price" value="${d.ticketPrice||3000}"></div>
       <div class="form-group"><label>Жалпы орын саны</label><input type="number" id="ef-total" value="${d.totalTickets||100}"></div>
