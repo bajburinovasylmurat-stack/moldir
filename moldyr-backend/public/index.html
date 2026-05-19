@@ -386,8 +386,7 @@ async function loadHome(){
       try{hv=await api('GET','/votes/'+todayEv.id);}catch(e){}
 
       te.innerHTML=`<div class="today-card">
-        <div class="eyebrow">БҮГІНГІ АЙТЫС · ${fd(todayEv.date)} · ${todayEv.time}</div>
-        <h2 style="margin-top:.5rem;font-size:1.35rem">Бүгінгі дуэль</h2>
+        <div class="eyebrow">БҮГІНГІ ДУЭЛЬ · ${fd(todayEv.date)} · ${todayEv.time}</div>
         <div class="vs-row">
           <div class="region-box r1-box">
             <div style="font-size:1.3rem">🏴</div>
