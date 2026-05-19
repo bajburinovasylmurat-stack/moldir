@@ -411,8 +411,8 @@ async function loadHome(){
     } else {
       te.innerHTML=`<div class="card" style="text-align:center;padding:3rem;margin-bottom:2rem">
         <div style="font-size:2.4rem;margin-bottom:.7rem">🌙</div>
-        <h3 style="color:var(--txt2)">Бүгін айтыс жоқ</h3>
-        <p style="color:var(--txt3);margin-top:.3rem;font-size:.86rem">Айтыстар әр сәрсенбі 19:00-де өтеді</p>
+        <h3 style="color:var(--txt2)">Бүгін дуэль жоқ</h3>
+        <p style="color:var(--txt3);margin-top:.3rem;font-size:.86rem">Дуэльдер әр сәрсенбі 19:00-де өтеді</p>
       </div>`;
     }
     const up=all.filter(e=>e.date>today()&&e.active).slice(0,3);
@@ -465,14 +465,14 @@ async function loadTickets(){
 
 function openBuy(ev){
   // Step 1: Айтыскерлер туралы ақпарат панелі
-  showModal(`<div class="modal-title">📜 Айтыс туралы</div>
+  showModal(`<div class="modal-title">📜 Дуэль туралы</div>
     <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.25);border-radius:14px;padding:1.2rem;margin-bottom:1.1rem">
       <div style="font-size:.75rem;color:var(--gold);font-family:sans-serif;letter-spacing:.1em;margin-bottom:.4rem">${fd(ev.date)} · ${ev.time||'19:00'}</div>
       <div style="font-size:1.1rem;font-weight:600"><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .5rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span></div>
     </div>
     ${ev.poetsInfo?`
     <div style="margin-bottom:1.1rem">
-      <div style="font-size:.68rem;letter-spacing:.2em;color:var(--txt3);text-transform:uppercase;font-family:sans-serif;margin-bottom:.6rem">✦ Айтыскерлер туралы</div>
+      <div style="font-size:.68rem;letter-spacing:.2em;color:var(--txt3);text-transform:uppercase;font-family:sans-serif;margin-bottom:.6rem">✦ Дуэль туралы</div>
       <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:1.2rem;max-height:280px;overflow-y:auto">
         ${ev.poetsInfo.split('\\n').filter(l=>l.trim()).map(line=>`<div style="display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.4rem"><span style="color:var(--gold);flex-shrink:0">•</span><span style="color:var(--txt2);font-size:.88rem;line-height:1.7">${line}</span></div>`).join('')}
       </div>
@@ -525,7 +525,7 @@ window.openBuyStep2=function(ev, qty){
     const msg=encodeURIComponent(
       `Сәлем! Билет алғым келеді:\n` +
       `📅 Күні: ${fd(ev.date)} ${ev.time||'19:00'}\n` +
-      `🏆 Айтыс: ${ev.region1} vs ${ev.region2}\n` +
+      `🏆 Дуэль: ${ev.region1} vs ${ev.region2}\n` +
       `🎟 Билет саны: ${qty} дана\n` +
       `💰 Сома: ${total.toLocaleString('ru')} ₸\n` +
       `Чекті жіберемін.`
@@ -552,7 +552,7 @@ window.changeQty=function(ev,delta){
   const msg=encodeURIComponent(
     `Сәлем! Билет алғым келеді:\n` +
     `📅 Күні: ${fd(ev.date)} ${ev.time||'19:00'}\n` +
-    `🏆 Айтыс: ${ev.region1} vs ${ev.region2}\n` +
+    `🏆 Дуэль: ${ev.region1} vs ${ev.region2}\n` +
     `🎟 Билет саны: ${q} дана\n` +
     `💰 Сома: ${total.toLocaleString('ru')} ₸\n` +
     `Чекті жіберемін.`
@@ -566,7 +566,7 @@ async function loadVote(){
   el.innerHTML=loader();
   try{
     const ev=await api('GET','/events/voting');
-    if(!ev){el.innerHTML=`<div class="empty" style="padding:5rem 0"><div class="empty-icon">🎙</div><h3 style="color:var(--txt2);margin-bottom:.4rem">Дауыс беру әлі басталған жоқ</h3><p style="color:var(--txt3)">Админ панельде керекті айтысқа “Дауыс беруді бастау” белгісін қосыңыз</p></div>`;return;}
+    if(!ev){el.innerHTML=`<div class="empty" style="padding:5rem 0"><div class="empty-icon">🎙</div><h3 style="color:var(--txt2);margin-bottom:.4rem">Дауыс беру әлі басталған жоқ</h3><p style="color:var(--txt3)">Админ панельде керекті дуэльге  “Дауыс беруді бастау” белгісін қосыңыз</p></div>`;return;}
     renderVote(ev);
   }catch(e){el.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-msg">${e.message}</div></div>`;}
 }
@@ -582,7 +582,7 @@ async function renderVote(ev){
   const r2p=tot?Math.round((votes.r2Count||0)/tot*100):50;
 
   let h=`<div class="card" style="margin-bottom:1.3rem;padding:1.1rem 1.4rem">
-    <div style="font-size:.73rem;color:var(--gold);letter-spacing:.2em;font-family:sans-serif;margin-bottom:.3rem">БҮГІНГІ АЙТЫС · ${fd(ev.date)} · ${ev.time}</div>
+    <div style="font-size:.73rem;color:var(--gold);letter-spacing:.2em;font-family:sans-serif;margin-bottom:.3rem">БҮГІНГІ ДУЭЛЬ · ${fd(ev.date)} · ${ev.time}</div>
     <div><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .4rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span></div>
   </div>
   <div class="vote-stats">
@@ -747,7 +747,7 @@ async function aEvents(){
   try{
     const evs=await api('GET','/events');
     c.innerHTML=`<div class="admin-hdr"><h2 style="margin:0">Дуэльді басқару</h2><button class="btn btn-gold btn-sm" onclick="openEvModal(null)">+ Келесі жекпе-жек</button></div>
-    ${!evs.length?'<div class="empty"><div class="empty-icon">📅</div><div class="empty-msg">Айтыс жоқ. Жаңасын қосыңыз.</div></div>':
+    ${!evs.length?'<div class="empty"><div class="empty-icon">📅</div><div class="empty-msg">Дуэль жоқ. Жаңасын қосыңыз.</div></div>':
     `<div class="tbl-wrap"><table><thead><tr><th>Күні</th><th>Уақыт</th><th>1-өңір</th><th>2-өңір</th><th>Баға</th><th>Орын</th><th>Белсенді</th><th></th></tr></thead><tbody>
     ${evs.map(ev=>`<tr><td>${fd(ev.date)}</td><td>${ev.time}</td><td style="color:var(--gold)">${ev.region1}</td><td style="color:var(--accent)">${ev.region2}</td><td>${(ev.ticketPrice||0).toLocaleString('ru')} ₸</td><td>${ev.remainingTickets}/${ev.totalTickets}</td><td><span class="tag ${ev.votingOpen?'tag-green':'tag-red'}">${ev.votingOpen?'Дауыс ашық':'Жабық'}</span><br><span class="tag ${ev.active?'tag-green':'tag-red'}" style="margin-top:.25rem">${ev.active?'Белсенді':'Жасырылған'}</span></td>
     <td><div class="td-act"><button class="btn btn-ghost btn-sm" onclick='openEvModal(${JSON.stringify(ev)})'>✏</button><button class="btn btn-danger btn-sm" onclick="delEv('${ev.id}')">✕</button></div></td></tr>`).join('')}
@@ -758,7 +758,7 @@ async function aEvents(){
 window.openEvModal=function(ev){
   const isNew=!ev;const d=ev||{};
   window._evPoster=d.poster||null;
-  showModal(`<div class="modal-title">${isNew?'➕ Келесі жекпе-жек':'✏ Айтысты өңдеу'}</div>
+  showModal(`<div class="modal-title">${isNew?'➕ Келесі жекпе-жек':'✏ Дуэльді өңдеу'}</div>
     <div class="form-row">
       <div class="form-group"><label>Күні *</label><input type="date" id="ef-date" value="${d.date||''}"></div>
       <div class="form-group"><label>Уақыты *</label><input type="time" id="ef-time" value="${d.time||'19:00'}"></div>
@@ -780,7 +780,7 @@ window.openEvModal=function(ev){
         <div style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="ef-voting" style="width:auto;accent-color:var(--gold)" ${d.votingOpen?'checked':''}><label style="margin:0;cursor:pointer" for="ef-voting">Дауыс беруді бастау</label></div>
       </div>
     </div>
-    <div class="form-group"><label>Каспи төлем сілтемесі (осы айтысқа)</label><input id="ef-kaspi" value="${d.kaspiLink||''}" placeholder="https://kaspi.kz/pay/..."></div>
+    <div class="form-group"><label>Каспи төлем сілтемесі (осы дуэльге)</label><input id="ef-kaspi" value="${d.kaspiLink||''}" placeholder="https://kaspi.kz/pay/..."></div>
     <div class="form-group"><label>Афиша суреті</label>
       <img id="ef-prev" class="img-prev" ${d.poster?`src="${d.poster}" style="display:block"`:'style="display:none"'}>
       <input type="file" accept="image/*" id="ef-poster" style="background:none;border:none;padding:0;cursor:pointer">
@@ -809,7 +809,7 @@ window.saveEv=async function(id){
 };
 
 window.delEv=async function(id){
-  if(!confirm('Айтысты жою?'))return;
+  if(!confirm('Дуэльді жою?'))return;
   try{await api('DELETE','/events/'+id);toast('Жойылды','info');aEvents();}
   catch(e){toast(e.message,'err');}
 };
