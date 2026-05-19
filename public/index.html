@@ -948,8 +948,8 @@ function closeModal(){
 
 // ══ INIT ══
 document.addEventListener('DOMContentLoaded',()=>{
-  loadHome();
-  // Secret admin access: type 'admin' on keyboard
+  if(location.hash==='#admin'){go('admin');}else{loadHome();}
+  window.addEventListener('hashchange',()=>{if(location.hash==='#admin')go('admin');});
   let seq='';
   document.addEventListener('keydown',e=>{
     seq+=e.key.toLowerCase();
