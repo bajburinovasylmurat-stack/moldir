@@ -1,8 +1,5 @@
 
-[build]
-rootDirectory = "aitys"
-
 [deploy]
-startCommand = "node moldyr-backend/server.js"
+startCommand = "node server.js"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 60
