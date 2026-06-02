@@ -1,4 +1,7 @@
 
+[build]
+rootDirectory = "aitys"
+
 [deploy]
 startCommand = "node moldyr-backend/server.js"
 healthcheckPath = "/api/health"
