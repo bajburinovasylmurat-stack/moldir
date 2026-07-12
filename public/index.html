@@ -456,7 +456,7 @@ async function loadTickets(){
         </div>
         <div style="text-align:right;flex-shrink:0">
           <div class="ticket-price">${(ev.ticketPrice||0).toLocaleString('ru')} ₸</div>
-          ${rem>0?`<button class="btn btn-gold btn-sm" onclick='${ev.seats&&Object.keys(ev.seats||{}).length>0?`openSeatSelect(${JSON.stringify(ev).replace(/'/g,"&#39;")})`:`openBuy(${JSON.stringify(ev).replace(/'/g,"&#39;")})`}'>Орын таңдау →</button>`:'<span class="tag tag-red">Билеттер сатылып кетті</span>'}
+          ${rem>0?`<button class="btn btn-gold btn-sm" onclick='openBuy(${JSON.stringify(ev).replace(/'/g,"&#39;")})'>Билет алу →</button>`:'<span class="tag tag-red">Билеттер сатылып кетті</span>'}
         </div>
       </div>`;
     }).join('')+'</div>';
@@ -903,20 +903,24 @@ async function aVotes(){
           <div style="font-size:1.8rem;font-weight:700;color:var(--gold2)">${s.r1Count}</div>
           <div style="font-size:.72rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.6rem">${s.region1}</div>
           <div style="display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r1',-100)">−100</button>
             <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r1',-10)">−10</button>
             <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r1',-1)">−1</button>
             <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r1',1)">+1</button>
             <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r1',10)">+10</button>
+            <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r1',100)">+100</button>
           </div>
         </div>
         <div style="background:rgba(138,111,212,.06);border:1px solid rgba(138,111,212,.2);border-radius:10px;padding:.8rem;text-align:center">
           <div style="font-size:1.8rem;font-weight:700;color:var(--accent)">${s.r2Count}</div>
           <div style="font-size:.72rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.6rem">${s.region2}</div>
           <div style="display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',-100)">−100</button>
             <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',-10)">−10</button>
             <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',-1)">−1</button>
             <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',1)">+1</button>
             <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',10)">+10</button>
+            <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',100)">+100</button>
           </div>
         </div>
         <div style="text-align:center;padding:.5rem">
@@ -985,71 +989,46 @@ async function aTickets(){
   const c=document.getElementById('adminMain');
   try{
     const evs=await api('GET','/events');
-    c.innerHTML=`<div class="admin-hdr"><h2 style="margin:0">Орындарды басқару</h2></div>
-    <p style="color:var(--txt2);margin-bottom:1.2rem;font-size:.88rem">Орын картасын орнатып, брондалған орындарды белгілеңіз</p>`;
+    c.innerHTML=`<div class="admin-hdr"><h2 style="margin:0">Билеттерді басқару</h2></div>`;
+    if(!evs.length){c.innerHTML+='<div class="empty"><div class="empty-icon">🎟</div><div class="empty-msg">Іс-шаралар жоқ</div></div>';return;}
     evs.forEach(ev=>{
-      const hasSeatMap=ev.seats&&_countTotal(ev.seats)>0;
-      const free=hasSeatMap?_countFree(ev.seats):ev.remainingTickets;
-      const total=hasSeatMap?_countTotal(ev.seats):ev.totalTickets;
       const box=document.createElement('div');
-      box.className='card';
-      box.style.marginBottom='.9rem';
+      box.className='card';box.style.marginBottom='.9rem';
       box.innerHTML=`
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem">
+        <div style="font-size:.73rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.2rem">${fd(ev.date)}</div>
+        <div style="margin-bottom:.9rem"><span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
           <div>
-            <div style="font-size:.73rem;color:var(--txt3);font-family:sans-serif">${fd(ev.date)}</div>
-            <div style="margin:.2rem 0"><span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span></div>
-            <div style="font-size:.8rem;color:var(--txt2)">Бос: <strong style="color:var(--gold2)">${free}</strong> / ${total} орын</div>
+            <label style="font-size:.75rem;color:var(--txt3);display:block;margin-bottom:.3rem">Барлық билет саны</label>
+            <input type="number" id="tt-${ev.id}" min="0" value="${ev.totalTickets||0}" style="width:100%;padding:.45rem .7rem;font-size:.95rem">
           </div>
-          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-            <button class="btn btn-gold btn-sm" onclick='openSeatBuilderM(${JSON.stringify(ev).replace(/'/g,"&#39;")})'>⚙ Орын орналастыру</button>
-            ${hasSeatMap?`<button class="btn btn-outline btn-sm" onclick='openSeatMapAdminM(${JSON.stringify(ev).replace(/'/g,"&#39;")})'>🗺 Картаны ашу</button>`:''}
+          <div>
+            <label style="font-size:.75rem;color:var(--txt3);display:block;margin-bottom:.3rem">Билет бағасы ₸</label>
+            <input type="number" id="tp-${ev.id}" min="0" value="${ev.ticketPrice||0}" style="width:100%;padding:.45rem .7rem;font-size:.95rem">
           </div>
         </div>
-        ${!hasSeatMap?`<div style="display:flex;gap:.4rem"><button class="btn btn-outline btn-sm" onclick="adjT('${ev.id}',-1)">−1 билет</button><button class="btn btn-outline btn-sm" onclick="adjT('${ev.id}',-5)">−5</button><button class="btn btn-ghost btn-sm" onclick="adjT('${ev.id}',1)">+1</button></div>`:''}
-      `;
+        <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap">
+          <button class="btn btn-gold btn-sm" onclick="saveTickets('${ev.id}')">💾 Сақтау</button>
+          <span style="font-size:.82rem;color:var(--txt2)">Бос: <strong style="color:var(--gold2)">${ev.remainingTickets??ev.totalTickets??0}</strong> / ${ev.totalTickets??0}</span>
+          <div style="display:flex;gap:.3rem;margin-left:auto">
+            <button class="btn btn-danger btn-sm" onclick="adjT('${ev.id}',-10)">−10</button>
+            <button class="btn btn-danger btn-sm" onclick="adjT('${ev.id}',-1)">−1</button>
+            <button class="btn btn-gold btn-sm" onclick="adjT('${ev.id}',1)">+1</button>
+            <button class="btn btn-gold btn-sm" onclick="adjT('${ev.id}',10)">+10</button>
+          </div>
+        </div>`;
       c.appendChild(box);
     });
   }catch(e){c.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-msg">${e.message}</div></div>`;}
 }
+window.saveTickets=async function(id){
+  const total=Number(document.getElementById('tt-'+id)?.value||0);
+  const price=Number(document.getElementById('tp-'+id)?.value||0);
+  try{await api('PUT','/events/'+id,{totalTickets:total,remainingTickets:total,ticketPrice:price});toast('Сақталды ✓','ok');aTickets();}
+  catch(e){toast(e.message,'err');}
+};
 window.adjT=async function(id,d){try{await api('PATCH','/events/'+id+'/tickets',{delta:d});toast(`${d>0?'+':''}${d} билет`,'info');aTickets();}catch(e){toast(e.message,'err');}};
 
-// ─ Admin seat toggle ─
-window.adminToggleSeat=async function(eid,seatId){
-  try{
-    const ev=await api('PATCH','/events/'+eid+'/seats/'+encodeURIComponent(seatId),{});
-    // re-render the map inside current modal
-    const mapDiv=document.getElementById('adminSeatMapWrap');
-    if(mapDiv){mapDiv.innerHTML=buildSeatMapHTML(ev,{isAdmin:true});}
-    const infoEl=document.getElementById('adminSeatInfo');
-    if(infoEl){infoEl.textContent=`Бос: ${_countFree(ev.seats)} / ${_countTotal(ev.seats)}`;}
-    toast(`${seatId} өзгертілді`,'info');
-    // also refresh in background
-    aTickets();
-  }catch(e){toast(e.message,'err');}
-};
-
-// ─ Admin seat map modal ─
-window.openSeatMapAdminM=function(ev){
-  showModal(`<div class="modal-title">🗺 Орын картасы — ${fd(ev.date)}</div>
-    <div id="adminSeatInfo" style="font-size:.85rem;color:var(--txt2);margin-bottom:.8rem">Бос: ${_countFree(ev.seats)} / ${_countTotal(ev.seats)}</div>
-    <div id="adminSeatMapWrap">${buildSeatMapHTML(ev,{isAdmin:true})}</div>
-    <div style="display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap">
-      <button class="btn btn-outline btn-sm" onclick="freeAllSeats('${ev.id}')">✓ Барлығын босату</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Жабу</button>
-    </div>`);
-};
-window.freeAllSeats=async function(eid){
-  if(!confirm('Барлық орынды бос деп белгілеу?'))return;
-  try{
-    const ev=await api('GET','/events/'+eid);
-    const seats=ev.seats||{};
-    for(const k of Object.keys(seats)){
-      if(seats[k]==='taken') await api('PATCH','/events/'+eid+'/seats/'+encodeURIComponent(k),{});
-    }
-    toast('Барлық орын босатылды','ok');closeModal();aTickets();
-  }catch(e){toast(e.message,'err');}
-};
 
 // ─ Admin seat builder modal ─
 let _sbEv=null,_sbRows=8,_sbCols=10,_sbBase=3000,_sbRP={},_sbDis=[];
