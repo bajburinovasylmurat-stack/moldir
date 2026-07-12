@@ -33,4 +33,16 @@ router.delete('/:id', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+router.put('/:id/seats/config', requireAuth, (req, res) => {
+  const result = db.saveSeatConfig(req.params.id, req.body);
+  if (!result) return res.status(404).json({ error: 'Табылмады' });
+  res.json(result);
+});
+
+router.patch('/:id/seats/:seatId', requireAuth, (req, res) => {
+  const result = db.toggleSeat(req.params.id, decodeURIComponent(req.params.seatId));
+  if (!result) return res.status(404).json({ error: 'Орын табылмады' });
+  res.json(result);
+});
+
 module.exports = router;
