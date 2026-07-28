@@ -244,7 +244,7 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
       <div class="card"><h3>Бас жүлде</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.9">«Мөлдір өлең» ауыспалы статуеткасы<br>100 г алтын + 3 карат бриллиант<br><strong style="color:var(--gold2)">3 000 000 ₸</strong></p></div>
       <div class="card"><h3>Қатысушыларға</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">Барлық ақынға <strong style="color:var(--gold2)">100 000 ₸</strong></p></div>
       <div class="card"><h3>Формат</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">20 команда · 18 кеш · 3 кезең</p></div>
-      <div class="card"><h3>Дауыс беру</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">Каспи · 200 ₸ = 1 дауыс</p></div>
+      <div class="card"><h3>Дауыс беру</h3><p style="color:var(--txt2);font-size:.88rem;line-height:1.7">Каспи · 500 ₸ = 1 дауыс</p></div>
     </div>
     <h2 style="margin-bottom:1rem">Жоба авторы</h2>
     <div class="card" style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2.5rem">
@@ -676,11 +676,7 @@ async function renderVote(ev){
   </div>
 `;
 
-  if(!vs.paid){
-    h+=`<div class="kaspi-info"><span style="font-size:1.6rem;flex-shrink:0">💳</span><span>1 дауыс = <strong>200 ₸</strong>. Каспи арқылы дәл 200 ₸ төлеңіз, содан кейін дауысыңызды беріңіз.</span></div>
-    <button class="btn btn-gold" style="width:100%;padding:.95rem;justify-content:center;font-size:.92rem" onclick="openVoteKaspi('${ev.id}')">💳 200 ₸ төлеп, дауыс беруге өту →</button>`;
-  } else {
-    h+=`<h3 style="margin-bottom:1.1rem;color:var(--gold2)">Кімге дауыс бересіз?</h3>
+  h+=`<h3 style="margin-bottom:1.1rem;color:var(--gold2)">Кімге дауыс бересіз?</h3>
     <div class="vote-opts">
       <div class="vote-card ${vs.choice===1?'selected':''}" onclick="selVote('${ev.id}',1)">
         <div style="font-size:1.9rem;margin-bottom:.7rem">🏴</div>
@@ -693,46 +689,50 @@ async function renderVote(ev){
         <div style="font-size:.76rem;color:var(--txt3);margin-top:.25rem">2-өңір</div>
       </div>
     </div>`;
-    if(vs.choice) h+=`<button class="btn btn-gold" style="width:100%;padding:.9rem;justify-content:center;margin-top:.4rem" onclick="submitVote('${ev.id}')">Дауысымды растаймын ✓</button>`;
+  if(vs.choice){
+    h+=`<div class="kaspi-info"><span style="font-size:1.6rem;flex-shrink:0">💳</span><span>1 дауыс = <strong>500 ₸</strong>. Каспи арқылы дәл 500 ₸ төлеңіз, содан кейін дауысыңыз есептеледі.</span></div>
+    <button class="btn btn-gold" style="width:100%;padding:.95rem;justify-content:center;font-size:.92rem;margin-top:.4rem" onclick="openVoteKaspi('${ev.id}')">💳 500 ₸ төлеп, дауысты растау →</button>`;
   }
   el.innerHTML=h;
 }
 
 function openVoteKaspi(eid){
-  api('GET','/settings/public').then(s=>{
-    const link=s.kaspi_link||'';
+  const vs=vSess[eid]||{};
+  const choice=vs.choice;
+  if(!choice){toast('Алдымен өңірді таңдаңыз','err');return;}
+  Promise.all([api('GET','/events/'+eid),api('GET','/settings/public')]).then(([ev,s])=>{
+    const perRegionLink=choice===2?ev.kaspiLink2:ev.kaspiLink1;
     const merchant=s.kaspi_merchant||'';
-    // Build proper Kaspi IP pay link
-    let kaspiUrl=link;
+    let kaspiUrl=perRegionLink||ev.kaspiLink||s.kaspi_link||'';
     if(!kaspiUrl&&merchant) kaspiUrl=`https://kaspi.kz/pay/index.html?service_id=${merchant}`;
     if(!kaspiUrl) kaspiUrl='https://kaspi.kz/pay';
+    const regionName=choice===2?ev.region2:ev.region1;
+    const regionColor=choice===2?'var(--accent)':'var(--gold)';
     showModal(`<div class="modal-title">💳 Дауыс беру үшін төлем</div>
       <div style="text-align:center;padding:1rem 0 .5rem">
         <div style="font-size:2.5rem;margin-bottom:.5rem">🗳</div>
-        <div style="font-size:2.4rem;color:var(--gold2);font-weight:700;letter-spacing:.05em">200 ₸</div>
-        <div style="font-size:.8rem;color:var(--txt3);margin-top:.3rem;font-family:sans-serif">1 дауыс = 200 теңге</div>
+        <div style="font-size:.85rem;color:var(--txt2);margin-bottom:.3rem;font-family:sans-serif">Сіз таңдадыңыз: <strong style="color:${regionColor}">${regionName}</strong></div>
+        <div style="font-size:2.4rem;color:var(--gold2);font-weight:700;letter-spacing:.05em">500 ₸</div>
+        <div style="font-size:.8rem;color:var(--txt3);margin-top:.3rem;font-family:sans-serif">1 дауыс = 500 теңге</div>
       </div>
       <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:1rem;margin:1rem 0;font-size:.88rem;color:var(--txt2);line-height:1.7">
         <div style="margin-bottom:.3rem">1. Төмендегі батырманы басыңыз</div>
-        <div style="margin-bottom:.3rem">2. Каспи ИП бетінде сомаға <strong style="color:var(--gold)">200 ₸</strong> жазыңыз</div>
-        <div>3. Төлемді растаңыз — дауыс беру ашылады</div>
+        <div style="margin-bottom:.3rem">2. Каспи ИП бетінде сомаға <strong style="color:var(--gold)">500 ₸</strong> жазыңыз</div>
+        <div>3. Төлемді растаңыз — дауысыңыз есептеледі</div>
       </div>
-      <a href="${kaspiUrl}" target="_blank" class="btn btn-gold" style="display:flex;justify-content:center;padding:1rem;font-size:.95rem;margin-bottom:.7rem" onclick="autoConfirmPaid('${eid}')">💳 Каспи ИП — 200 ₸ төлеу →</a>
+      <a href="${kaspiUrl}" target="_blank" class="btn btn-gold" style="display:flex;justify-content:center;padding:1rem;font-size:.95rem;margin-bottom:.7rem" onclick="autoConfirmPaid('${eid}')">💳 Каспи ИП — 500 ₸ төлеу →</a>
       <div style="background:rgba(201,68,68,.08);border:1px solid rgba(201,68,68,.25);border-radius:8px;padding:.7rem 1rem;margin-bottom:.7rem;font-size:.8rem;color:#f08080;font-family:sans-serif;line-height:1.5">
-      ⚠️ <strong>Ескерту:</strong> 200 тенгеден басқа сумма жіберілсе дауыс есептелмейді. Дәл <strong>200 ₸</strong> ғана.
+      ⚠️ <strong>Ескерту:</strong> 500 тенгеден басқа сумма жіберілсе дауыс есептелмейді. Дәл <strong>500 ₸</strong> ғана.
     </div>
-    <p style="color:var(--txt3);font-size:.78rem;text-align:center;margin-bottom:.7rem;font-family:sans-serif">Сілтемені басқаннан кейін дауыс беру автоматты ашылады</p>
+    <p style="color:var(--txt3);font-size:.78rem;text-align:center;margin-bottom:.7rem;font-family:sans-serif">Сілтемені басқаннан кейін дауысыңыз автоматты расталады</p>
       <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="closeModal()">Болдырмау</button>`);
   });
 }
 
-window.confirmPaid=function(eid){vSess[eid]={...(vSess[eid]||{}),paid:true};saveVSess();closeModal();api('GET','/events/'+eid).then(ev=>renderVote(ev)).catch(()=>{});};
 window.autoConfirmPaid=function(eid){
   setTimeout(()=>{
-    vSess[eid]={...(vSess[eid]||{}),paid:true};
-    saveVSess();
     closeModal();
-    api('GET','/events/'+eid).then(ev=>renderVote(ev)).catch(()=>{});
+    submitVote(eid);
   },1500);
 };
 window.selVote=function(eid,ch){vSess[eid]={...(vSess[eid]||{}),choice:ch};saveVSess();api('GET','/events/'+eid).then(ev=>renderVote(ev)).catch(()=>{});};
@@ -741,8 +741,8 @@ window.submitVote=async function(eid){
   try{
     const voteToken=uid();
     await api('POST','/votes',{eventId:eid,regionChoice:vs.choice,token:voteToken});
-    vSess[eid]={paid:false,choice:null};saveVSess();
-    toast('Дауысыңыз қабылданды! ✅ Қайта дауыс беру үшін 200 ₸ төлеңіз.','ok');
+    vSess[eid]={choice:null};saveVSess();
+    toast('Дауысыңыз қабылданды! ✅ Қайта дауыс беру үшін 500 ₸ төлеңіз.','ok');
     api('GET','/events/'+eid).then(ev=>renderVote(ev)).catch(()=>{});
   }catch(e){
     if(e.message&&e.message.includes('берілген')){
@@ -854,7 +854,11 @@ window.openEvModal=function(ev){
         <div style="display:flex;align-items:center;gap:.5rem"><input type="checkbox" id="ef-voting" style="width:auto;accent-color:var(--gold)" ${d.votingOpen?'checked':''}><label style="margin:0;cursor:pointer" for="ef-voting">Дауыс беруді бастау</label></div>
       </div>
     </div>
-    <div class="form-group"><label>Каспи төлем сілтемесі (осы дуэльге)</label><input id="ef-kaspi" value="${d.kaspiLink||''}" placeholder="https://kaspi.kz/pay/..."></div>
+    <div class="form-row">
+      <div class="form-group"><label>1-өңірге дауыс — Каспи сілтемесі</label><input id="ef-kaspi1" value="${d.kaspiLink1||''}" placeholder="https://kaspi.kz/pay/..."></div>
+      <div class="form-group"><label>2-өңірге дауыс — Каспи сілтемесі</label><input id="ef-kaspi2" value="${d.kaspiLink2||''}" placeholder="https://kaspi.kz/pay/..."></div>
+    </div>
+    <div class="form-group"><label>Билет төлемі үшін жалпы Каспи сілтемесі</label><input id="ef-kaspi" value="${d.kaspiLink||''}" placeholder="https://kaspi.kz/pay/..."></div>
     <div class="form-group"><label>Афиша суреті</label>
       <img id="ef-prev" class="img-prev" ${d.poster?`src="${d.poster}" style="display:block"`:'style="display:none"'}>
       <input type="file" accept="image/*" id="ef-poster" style="background:none;border:none;padding:0;cursor:pointer">
@@ -873,7 +877,7 @@ window.openEvModal=function(ev){
 
 window.saveEv=async function(id){
   const g=i=>document.getElementById(i)?.value||'';
-  const body={date:g('ef-date'),time:g('ef-time')||'19:00',region1:g('ef-r1'),region2:g('ef-r2'),guest:g('ef-guest')||null,poetsInfo:g('ef-poets'),ticketPrice:+g('ef-price')||3000,totalTickets:+g('ef-total')||100,remainingTickets:+g('ef-rem'),active:document.getElementById('ef-active')?.checked,votingOpen:document.getElementById('ef-voting')?.checked,kaspiLink:g('ef-kaspi')||null,poster:window._evPoster||null};
+  const body={date:g('ef-date'),time:g('ef-time')||'19:00',region1:g('ef-r1'),region2:g('ef-r2'),guest:g('ef-guest')||null,poetsInfo:g('ef-poets'),ticketPrice:+g('ef-price')||3000,totalTickets:+g('ef-total')||100,remainingTickets:+g('ef-rem'),active:document.getElementById('ef-active')?.checked,votingOpen:document.getElementById('ef-voting')?.checked,kaspiLink:g('ef-kaspi')||null,kaspiLink1:g('ef-kaspi1')||null,kaspiLink2:g('ef-kaspi2')||null,poster:window._evPoster||null};
   if(!body.date||!body.region1||!body.region2){toast('Күні мен өңірлерді толтырыңыз','err');return;}
   try{
     if(id) await api('PUT','/events/'+id,body);
