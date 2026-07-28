@@ -58,6 +58,8 @@ function createEvent(data) {
     totalTickets: data.totalTickets || 100,
     remainingTickets: data.remainingTickets ?? data.totalTickets ?? 100,
     kaspiLink: data.kaspiLink || null,
+    kaspiLink1: data.kaspiLink1 || null,
+    kaspiLink2: data.kaspiLink2 || null,
     votingOpen: data.votingOpen === true,
     active: data.active !== false, createdAt: new Date().toISOString(),
   };
