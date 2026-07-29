@@ -54,6 +54,7 @@ h3{font-size:1rem;color:var(--gold);margin-bottom:.4rem}
 /* HERO */
 .hero{text-align:center;padding:5rem 2rem 2rem;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,168,76,.07),transparent);pointer-events:none}
+.hero-banner{width:100%;max-width:820px;height:auto;display:block;margin:0 auto 2rem;border-radius:16px}
 .hero-sub{font-size:.88rem;color:var(--txt2);max-width:480px;margin:.8rem auto 2.5rem;line-height:1.9}
 .ornament{color:var(--gold3);letter-spacing:.25em;font-size:.95rem;margin:.5rem 0}
 
@@ -176,10 +177,7 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="eyebrow">Ұлттық Поэзиялық Жоба</div>
-    <h1>МӨЛДІР<br>ӨЛЕҢ</h1>
-    <div class="ornament">✦ ✦ ✦</div>
-    <p class="hero-sub">Қазақстанның 20 өңірінен іріктелген ақындардың өнер сайысы.</p>
+    <img src="/hero-banner.jpg" alt="Мөлдір Өлең — Ұлттық Поэзиялық Жоба" class="hero-banner">
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
       <button class="btn btn-gold" onclick="go('vote')">Дауыс беру →</button>
       <button class="btn btn-outline" onclick="go('tickets')">Билет алу</button>
