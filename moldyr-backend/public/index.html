@@ -687,9 +687,12 @@ async function renderVote(ev){
         <div style="font-size:.76rem;color:var(--txt3);margin-top:.25rem">2-өңір</div>
       </div>
     </div>`;
-  if(vs.choice){
-    h+=`<div class="kaspi-info"><span style="font-size:1.6rem;flex-shrink:0">💳</span><span>1 дауыс = <strong>500 ₸</strong>. Каспи арқылы дәл 500 ₸ төлеңіз, содан кейін дауысыңыз есептеледі.</span></div>
-    <button class="btn btn-gold" style="width:100%;padding:.95rem;justify-content:center;font-size:.92rem;margin-top:.4rem" onclick="openVoteKaspi('${ev.id}')">💳 500 ₸ төлеп, дауысты растау →</button>`;
+  if(vs.choice&&!vs.paid){
+    h+=`<div class="kaspi-info"><span style="font-size:1.6rem;flex-shrink:0">💳</span><span>1 дауыс = <strong>500 ₸</strong>. Каспи арқылы дәл 500 ₸ төлеңіз, содан кейін дауысыңызды растаңыз.</span></div>
+    <button class="btn btn-gold" style="width:100%;padding:.95rem;justify-content:center;font-size:.92rem;margin-top:.4rem" onclick="openVoteKaspi('${ev.id}')">💳 500 ₸ төлеу →</button>`;
+  } else if(vs.choice&&vs.paid){
+    h+=`<div class="kaspi-info"><span style="font-size:1.6rem;flex-shrink:0">✅</span><span>Төлем қабылданды. Дауысыңызды растаңыз.</span></div>
+    <button class="btn btn-gold" style="width:100%;padding:.95rem;justify-content:center;font-size:.92rem;margin-top:.4rem" onclick="submitVote('${ev.id}')">Дауысымды растаймын ✓</button>`;
   }
   el.innerHTML=h;
 }
@@ -722,15 +725,17 @@ function openVoteKaspi(eid){
       <div style="background:rgba(201,68,68,.08);border:1px solid rgba(201,68,68,.25);border-radius:8px;padding:.7rem 1rem;margin-bottom:.7rem;font-size:.8rem;color:#f08080;font-family:sans-serif;line-height:1.5">
       ⚠️ <strong>Ескерту:</strong> 500 тенгеден басқа сумма жіберілсе дауыс есептелмейді. Дәл <strong>500 ₸</strong> ғана.
     </div>
-    <p style="color:var(--txt3);font-size:.78rem;text-align:center;margin-bottom:.7rem;font-family:sans-serif">Сілтемені басқаннан кейін дауысыңыз автоматты расталады</p>
+    <p style="color:var(--txt3);font-size:.78rem;text-align:center;margin-bottom:.7rem;font-family:sans-serif">Төлегеннен кейін «Дауысымды растаймын» батырмасын басыңыз</p>
       <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="closeModal()">Болдырмау</button>`);
   });
 }
 
 window.autoConfirmPaid=function(eid){
   setTimeout(()=>{
+    vSess[eid]={...(vSess[eid]||{}),paid:true};
+    saveVSess();
     closeModal();
-    submitVote(eid);
+    api('GET','/events/'+eid).then(ev=>renderVote(ev)).catch(()=>{});
   },1500);
 };
 window.selVote=function(eid,ch){vSess[eid]={...(vSess[eid]||{}),choice:ch};saveVSess();api('GET','/events/'+eid).then(ev=>renderVote(ev)).catch(()=>{});};
