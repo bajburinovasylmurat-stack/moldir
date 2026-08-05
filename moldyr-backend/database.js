@@ -101,7 +101,7 @@ function resetVoteOffsets(eventId) {
 function _rowLabel(i) { return String.fromCharCode(65 + i); }
 function _buildSeats(cfg, oldSeats) {
   const seats = {};
-  const rows = Number(cfg.rowCount || 8);
+  const rows = Number(cfg.rowCount || 10);
   const cols = Number(cfg.colCount || 10);
   for (let r = 0; r < rows; r++) {
     const rl = _rowLabel(r);
