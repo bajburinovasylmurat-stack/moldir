@@ -101,7 +101,7 @@ function resetVoteOffsets(eventId) {
 function _rowLabel(i) { return String.fromCharCode(65 + i); }
 function _buildSeats(cfg, oldSeats) {
   const seats = {};
-  const rows = Number(cfg.rowCount || 10);
+  const rows = Number(cfg.rowCount || 8);
   const cols = Number(cfg.colCount || 10);
   for (let r = 0; r < rows; r++) {
     const rl = _rowLabel(r);
@@ -126,18 +126,8 @@ function saveSeatConfig(id, config) {
   return getEventById(id);
 }
 function toggleSeat(id, seatId) {
-  let ev = getEventById(id);
-  if (!ev) return null;
-  if (!ev.seats || Object.keys(ev.seats).length === 0) {
-    const cfg = ev.seatConfig || { rowCount: 10, colCount: 10, basePrice: ev.ticketPrice || 3000, rowPrices: {}, disabled: [] };
-    const seats = _buildSeats(cfg, {});
-    getDb().get('events').find({ id }).assign({
-      seatConfig: ev.seatConfig || cfg, seats,
-      totalTickets: Object.keys(seats).length, remainingTickets: Object.keys(seats).length,
-    }).write();
-    ev = getEventById(id);
-  }
-  if (ev.seats[seatId] === undefined) return null;
+  const ev = getEventById(id);
+  if (!ev || !ev.seats || ev.seats[seatId] === undefined) return null;
   const newStatus = ev.seats[seatId] === 'taken' ? 'free' : 'taken';
   const seats = { ...ev.seats, [seatId]: newStatus };
   const remaining = Object.values(seats).filter(s => s === 'free').length;
