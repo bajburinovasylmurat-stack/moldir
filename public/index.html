@@ -877,7 +877,7 @@ window.resetVotes=async function(eid){if(!confirm('Барлық дауысты �
 // ─ Seat helpers ─
 function _rl(i){return String.fromCharCode(65+i);}
 function _seatPrice(k,cfg){const r=k.split('-')[0];return Number((cfg.rowPrices||{})[r]||cfg.basePrice||0);}
-function _seatNum(k,cfg){const[rl,c]=k.split('-');const r=rl.charCodeAt(0)-65;const cols=Number(cfg.colCount||10);return r*cols+Number(c);}
+function _seatNum(k,cfg){const[rl,c]=k.split('-');const r=rl.charCodeAt(0)-65;const cols=Number(cfg.colCount||10);const rows=Number(cfg.rowCount||10);return(rows-1-r)*cols+Number(c);}
 function _countFree(seats){return Object.values(seats||{}).filter(v=>v==='free').length;}
 function _countTotal(seats){return Object.keys(seats||{}).length;}
 
@@ -901,7 +901,7 @@ function buildSeatMapHTML(ev, opts){
     h+=`<div style="display:flex;align-items:center;justify-content:center;gap:3px;margin-bottom:${blockGap}">`;
     for(let c=1;c<=cols;c++){
       const k=`${rl}-${c}`;
-      const num=r*cols+c;
+      const num=(rows-1-r)*cols+c;
       const colGap=c>1&&(c-1)%2===0?'9px':'3px';
       if((cfg.disabled||[]).includes(k)){h+=`<div style="width:26px;height:26px;flex-shrink:0;margin-left:${colGap}"></div>`;continue;}
       const st=seats[k]||'free';
