@@ -512,7 +512,7 @@ function _seatSummaryHTML(ev){
   const cfg=_seatCfg(ev);
   if(!keys.length) return `<div style="color:var(--txt3);font-size:.85rem;text-align:center;padding:.8rem">Орын таңдаңыз</div>`;
   return `<div style="font-size:.8rem;color:var(--txt3);margin-bottom:.4rem">Таңдалған:</div>
-    <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">${keys.map(k=>`<span class="tag tag-gold">${k} — ${_seatPrice(k,cfg).toLocaleString('ru')} ₸</span>`).join('')}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">${keys.map(k=>`<span class="tag tag-gold">${_seatNum(k,cfg)} — ${_seatPrice(k,cfg).toLocaleString('ru')} ₸</span>`).join('')}</div>
     <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:.6rem">
       <span style="color:var(--txt2);font-size:.88rem">Жиыны:</span>
       <span style="font-size:1.2rem;color:var(--gold2);font-weight:700">${total.toLocaleString('ru')} ₸</span>
@@ -543,7 +543,7 @@ window._proceedSeatPayment=function(){
       `Сәлем! Орын брондағым келеді:\n`+
       `📅 ${fd(ev.date)} ${ev.time||'19:00'}\n`+
       `🏆 ${ev.region1} vs ${ev.region2}\n`+
-      `💺 Орындар: ${keys.join(', ')}\n`+
+      `💺 Орындар: ${keys.map(k=>_seatNum(k,cfg)).join(', ')}\n`+
       `💰 Жиыны: ${total.toLocaleString('ru')} ₸\nЧекті жіберемін.`
     );
     showModal(`<div class="modal-title">💳 Төлем</div>
@@ -877,6 +877,7 @@ window.resetVotes=async function(eid){if(!confirm('Барлық дауысты �
 // ─ Seat helpers ─
 function _rl(i){return String.fromCharCode(65+i);}
 function _seatPrice(k,cfg){const r=k.split('-')[0];return Number((cfg.rowPrices||{})[r]||cfg.basePrice||0);}
+function _seatNum(k,cfg){const[rl,c]=k.split('-');const r=rl.charCodeAt(0)-65;const cols=Number(cfg.colCount||10);return r*cols+Number(c);}
 function _countFree(seats){return Object.values(seats||{}).filter(v=>v==='free').length;}
 function _countTotal(seats){return Object.keys(seats||{}).length;}
 
@@ -897,10 +898,10 @@ function buildSeatMapHTML(ev, opts){
   for(let r=0;r<rows;r++){
     const rl=_rl(r);
     const blockGap=r>0&&r%2===0?'10px':'3px';
-    h+=`<div style="display:flex;align-items:center;gap:3px;margin-bottom:${blockGap}">`;
-    h+=`<div style="width:18px;text-align:center;font-size:.7rem;color:var(--txt3);font-weight:600;flex-shrink:0">${rl}</div>`;
+    h+=`<div style="display:flex;align-items:center;justify-content:center;gap:3px;margin-bottom:${blockGap}">`;
     for(let c=1;c<=cols;c++){
       const k=`${rl}-${c}`;
+      const num=r*cols+c;
       const colGap=c>1&&(c-1)%2===0?'9px':'3px';
       if((cfg.disabled||[]).includes(k)){h+=`<div style="width:26px;height:26px;flex-shrink:0;margin-left:${colGap}"></div>`;continue;}
       const st=seats[k]||'free';
@@ -910,9 +911,9 @@ function buildSeatMapHTML(ev, opts){
       else if(st==='taken'){bg='rgba(201,68,68,.15)';bd='rgba(201,68,68,.5)';col='rgba(201,68,68,.7)';cur=opts&&opts.isAdmin?'pointer':'default';}
       const click=opts&&opts.isAdmin?`onclick="adminToggleSeat('${ev.id}','${k}')"`:
         (st==='free'||isSel)?`onclick="selSeat('${k}',${_seatPrice(k,cfg)})"`:' ';
-      h+=`<div title="${k} — ${_seatPrice(k,cfg).toLocaleString('ru')} ₸" ${click}
-        style="width:26px;height:26px;margin-left:${colGap};border-radius:6px 6px 3px 3px;border:2px solid ${bd};background:${bg};color:${col};cursor:${cur};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;transition:all .1s">
-        ${st==='taken'&&!(opts&&opts.isAdmin)?'✕':c}</div>`;
+      h+=`<div title="${num} — ${_seatPrice(k,cfg).toLocaleString('ru')} ₸" ${click}
+        style="width:26px;height:26px;margin-left:${colGap};border-radius:6px 6px 3px 3px;border:2px solid ${bd};background:${bg};color:${col};cursor:${cur};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:6.5px;font-weight:700;transition:all .1s">
+        ${st==='taken'&&!(opts&&opts.isAdmin)?'✕':num}</div>`;
     }
     h+=`</div>`;
   }
@@ -961,7 +962,8 @@ async function aTickets(){
             <button class="btn btn-gold btn-sm" onclick="adjT('${ev.id}',1)">+1</button>
             <button class="btn btn-gold btn-sm" onclick="adjT('${ev.id}',10)">+10</button>
           </div>
-        </div>`;
+        </div>
+        <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:.6rem" onclick="openAdminSeatStatus('${ev.id}')">🎟 Сатылған орындарды белгілеу</button>`;
       c.appendChild(box);
     });
   }catch(e){c.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-msg">${e.message}</div></div>`;}
@@ -974,6 +976,33 @@ window.saveTickets=async function(id){
 };
 window.adjT=async function(id,d){try{await api('PATCH','/events/'+id+'/tickets',{delta:d});toast(`${d>0?'+':''}${d} билет`,'info');aTickets();}catch(e){toast(e.message,'err');}};
 
+// ─ Admin: mark sold seats ─
+window.openAdminSeatStatus=async function(evId){
+  try{
+    const ev=await api('GET','/events/'+evId);
+    _renderAdminSeatStatus(ev);
+  }catch(e){toast(e.message,'err');}
+};
+function _renderAdminSeatStatus(ev){
+  const free=_countFree(ev.seats||{});
+  const total=_countTotal(ev.seats||{})||100;
+  showModal(`<div class="modal-title">🎟 Сатылған орындарды белгілеу</div>
+    <div style="font-size:.78rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.8rem">${fd(ev.date)} · <span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span></div>
+    <p style="color:var(--txt2);font-size:.82rem;margin-bottom:.8rem">Каспиден чек келген орынды басып, «Брондалған» етіп белгілеңіз.</p>
+    <div id="adminSeatWrap">${buildSeatMapHTML(ev,{isAdmin:true})}</div>
+    <div id="adminSeatCount" style="text-align:center;margin-top:.8rem;font-size:.85rem;color:var(--txt2)">Бос: <strong style="color:var(--gold2)">${free}</strong> / ${total}</div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.8rem;justify-content:center" onclick="closeModal();aTickets()">Жабу</button>`);
+}
+window.adminToggleSeat=async function(evId,seatKey){
+  try{
+    await api('PATCH',`/events/${evId}/seats/${encodeURIComponent(seatKey)}`);
+    const ev=await api('GET','/events/'+evId);
+    const wrap=document.getElementById('adminSeatWrap');
+    if(wrap) wrap.innerHTML=buildSeatMapHTML(ev,{isAdmin:true});
+    const cnt=document.getElementById('adminSeatCount');
+    if(cnt) cnt.innerHTML=`Бос: <strong style="color:var(--gold2)">${_countFree(ev.seats||{})}</strong> / ${_countTotal(ev.seats||{})}`;
+  }catch(e){toast(e.message,'err');}
+};
 
 // ─ Admin seat builder modal ─
 let _sbEv=null,_sbRows=10,_sbCols=10,_sbBase=3000,_sbRP={},_sbDis=[];
