@@ -879,6 +879,7 @@ const TIER_META={
   c:{label:'5-6 қатар',color:'#4a9e6a'},
 };
 const TIER_DEFAULT_PRICE={a:8000,b:6000,c:4000};
+const TIER_GRID_COLS={a:5,b:4,c:4}; // әр деңгей дәл 2 қатарға сыюы үшін (a:5+4=9, b/c:4+4=8 кластер)
 function _seatTier(n){return n<=TIER_SEAT_COUNTS.a?'a':n<=TIER_SEAT_COUNTS.a+TIER_SEAT_COUNTS.b?'b':'c';}
 function _seatPrice(ev,n){const tier=_seatTier(n);return Number((ev.tierPrices||{})[tier])||TIER_DEFAULT_PRICE[tier];}
 function _countFree(seats){return Object.values(seats||{}).filter(v=>v==='free').length;}
@@ -917,7 +918,7 @@ function buildHallHTML(ev,opts){
   [...TIER_ORDER].reverse().forEach(t=>{
     const meta=TIER_META[t];
     h+=`<div style="text-align:center;font-size:.66rem;letter-spacing:.2em;color:${meta.color};font-family:sans-serif;margin-bottom:.5rem">${meta.label}</div>`;
-    h+=`<div style="display:grid;grid-template-columns:repeat(3,56px);gap:.6rem;justify-content:center;margin-bottom:1.1rem">`;
+    h+=`<div style="display:grid;grid-template-columns:repeat(${TIER_GRID_COLS[t]},56px);gap:.6rem;justify-content:center;margin-bottom:1.1rem">`;
     clusters[t].forEach(([tl,bl,tr,br])=>{
       h+=`<div style="display:grid;grid-template-columns:repeat(2,24px);grid-template-rows:repeat(2,24px);gap:2px">
         ${seatCell(tl,meta)}${seatCell(tr,meta)}${seatCell(bl,meta)}${seatCell(br,meta)}
