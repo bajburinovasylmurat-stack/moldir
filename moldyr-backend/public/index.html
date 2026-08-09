@@ -869,26 +869,26 @@ window.adjV=async function(eid,region,delta){
 };
 window.resetVotes=async function(eid){if(!confirm('Барлық дауысты жою?'))return;try{await api('DELETE','/votes/'+eid);toast('Тазаланды','info');aVotes();}catch(e){toast(e.message,'err');}};
 
-// ─ Seat helpers — Мөлдір Өлең залы: 3 деңгей × 2 қатар, әр деңгейде 8 кластер × 4 орын (2×2) ─
-const CLUSTERS_PER_TIER=8;
-const SEATS_PER_TIER=CLUSTERS_PER_TIER*4;
+// ─ Seat helpers — Мөлдір Өлең залы: 3 деңгей × 2 қатар, 2×2 кластер, жиыны 100 орын ─
 const TIER_ORDER=['a','b','c'];
+const TIER_CLUSTER_COUNTS={a:9,b:8,c:8};
+const TIER_SEAT_COUNTS={a:36,b:32,c:32};
 const TIER_META={
   a:{label:'1-2 қатар',color:'#c9a84c'},
   b:{label:'3-4 қатар',color:'#8b6fd4'},
   c:{label:'5-6 қатар',color:'#4a9e6a'},
 };
 const TIER_DEFAULT_PRICE={a:8000,b:6000,c:4000};
-function _seatTier(n){return n<=SEATS_PER_TIER?'a':n<=SEATS_PER_TIER*2?'b':'c';}
+function _seatTier(n){return n<=TIER_SEAT_COUNTS.a?'a':n<=TIER_SEAT_COUNTS.a+TIER_SEAT_COUNTS.b?'b':'c';}
 function _seatPrice(ev,n){const tier=_seatTier(n);return Number((ev.tierPrices||{})[tier])||TIER_DEFAULT_PRICE[tier];}
 function _countFree(seats){return Object.values(seats||{}).filter(v=>v==='free').length;}
 function _countTotal(seats){return Object.keys(seats||{}).length;}
-// tier→[cluster0..7], әр cluster=[алдыңғы-сол,алдыңғы-оң,артқы-сол,артқы-оң]
+// tier→[cluster0..N], әр cluster=[үстіңгі-сол,астыңғы-сол,үстіңгі-оң,астыңғы-оң] — баған бойынша нөмір (13,14,15,16 үлгісі)
 function _tierClusters(){
   const map={};let n=0;
   TIER_ORDER.forEach(t=>{
     map[t]=[];
-    for(let c=0;c<CLUSTERS_PER_TIER;c++) map[t].push([++n,++n,++n,++n]);
+    for(let c=0;c<TIER_CLUSTER_COUNTS[t];c++) map[t].push([++n,++n,++n,++n]);
   });
   return map;
 }
@@ -918,9 +918,9 @@ function buildHallHTML(ev,opts){
     const meta=TIER_META[t];
     h+=`<div style="text-align:center;font-size:.66rem;letter-spacing:.2em;color:${meta.color};font-family:sans-serif;margin-bottom:.5rem">${meta.label}</div>`;
     h+=`<div style="display:flex;gap:.6rem;justify-content:center;margin-bottom:1.1rem;flex-wrap:wrap">`;
-    clusters[t].forEach(([a,b,c,d])=>{
+    clusters[t].forEach(([tl,bl,tr,br])=>{
       h+=`<div style="display:grid;grid-template-columns:repeat(2,24px);grid-template-rows:repeat(2,24px);gap:2px">
-        ${seatCell(a,meta)}${seatCell(b,meta)}${seatCell(c,meta)}${seatCell(d,meta)}
+        ${seatCell(tl,meta)}${seatCell(tr,meta)}${seatCell(bl,meta)}${seatCell(br,meta)}
       </div>`;
     });
     h+=`</div>`;

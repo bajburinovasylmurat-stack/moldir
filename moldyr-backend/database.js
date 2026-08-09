@@ -99,16 +99,20 @@ function resetVoteOffsets(eventId) {
 }
 
 // ─── Seats ────────────────────────────────────────────────────
-// Мөлдір Өлең залы — 6 қатар (3 деңгей × 2 қатар), әр деңгейде 8 клaстер × 4 орын = 32 орын.
-// №1 сахнаға ең жақын (tier 'a'). Жиыны 96 орын.
-const CLUSTERS_PER_TIER = 8;
+// Мөлдір Өлең залы — 6 қатар (3 деңгей × 2 қатар), әр деңгей 2×2 кластерлерден тұрады.
+// №1 сахнаға ең жақын (tier 'a'). Жиыны 100 орын: a=36, b=32, c=32.
 const SEATS_PER_CLUSTER = 4;
-const SEATS_PER_TIER = CLUSTERS_PER_TIER * SEATS_PER_CLUSTER;
-const TOTAL_SEATS = SEATS_PER_TIER * 3;
+const TIER_CLUSTER_COUNTS = { a: 9, b: 8, c: 8 };
+const TIER_SEAT_COUNTS = {
+  a: TIER_CLUSTER_COUNTS.a * SEATS_PER_CLUSTER,
+  b: TIER_CLUSTER_COUNTS.b * SEATS_PER_CLUSTER,
+  c: TIER_CLUSTER_COUNTS.c * SEATS_PER_CLUSTER,
+};
+const TOTAL_SEATS = TIER_SEAT_COUNTS.a + TIER_SEAT_COUNTS.b + TIER_SEAT_COUNTS.c;
 const TIER_DEFAULT_PRICE = { a: 8000, b: 6000, c: 4000 };
 function _seatTier(n) {
-  if (n <= SEATS_PER_TIER) return 'a';
-  if (n <= SEATS_PER_TIER * 2) return 'b';
+  if (n <= TIER_SEAT_COUNTS.a) return 'a';
+  if (n <= TIER_SEAT_COUNTS.a + TIER_SEAT_COUNTS.b) return 'b';
   return 'c';
 }
 function defaultTierPrices() { return { ...TIER_DEFAULT_PRICE }; }
