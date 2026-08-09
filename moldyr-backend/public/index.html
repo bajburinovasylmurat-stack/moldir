@@ -885,7 +885,7 @@ function _seatTier(n){return n<=TIER_SEAT_COUNTS.a?'a':n<=TIER_SEAT_COUNTS.a+TIE
 function _seatPrice(ev,n){const tier=_seatTier(n);return Number((ev.tierPrices||{})[tier])||TIER_DEFAULT_PRICE[tier];}
 function _countFree(seats){return Object.values(seats||{}).filter(v=>v==='free').length;}
 function _countTotal(seats){return Object.keys(seats||{}).length;}
-// tier→[cluster0..N], әр cluster=[үстіңгі-сол,астыңғы-сол,үстіңгі-оң,астыңғы-оң] — баған бойынша нөмір (13,14,15,16 үлгісі)
+// tier→[cluster0..N], әр cluster=[астыңғы-сол,үстіңгі-сол,астыңғы-оң,үстіңгі-оң] — №1 әр кластерде де сахнаға жақын (астыңғы) жағынан басталады
 function _tierClusters(){
   const map={};let n=0;
   TIER_ORDER.forEach(t=>{
@@ -919,7 +919,7 @@ function buildHallHTML(ev,opts){
   [...TIER_ORDER].reverse().forEach((t,ti)=>{
     const meta=TIER_META[t];
     h+=`<div style="display:grid;grid-template-columns:repeat(${TIER_GRID_COLS[t]},56px);gap:.6rem;justify-content:center;margin-bottom:${ti<TIER_ORDER.length-1?'1.5rem':'1.1rem'}">`;
-    clusters[t].forEach(([tl,bl,tr,br])=>{
+    clusters[t].forEach(([bl,tl,br,tr])=>{
       h+=`<div style="display:grid;grid-template-columns:repeat(2,24px);grid-template-rows:repeat(2,24px);gap:2px">
         ${seatCell(tl,meta)}${seatCell(tr,meta)}${seatCell(bl,meta)}${seatCell(br,meta)}
       </div>`;
