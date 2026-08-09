@@ -98,36 +98,26 @@ function resetVoteOffsets(eventId) {
 }
 
 // ─── Seats ────────────────────────────────────────────────────
-function _rowLabel(i) { return String.fromCharCode(65 + i); }
-function _buildSeats(cfg, oldSeats) {
+// Мөлдір Өлең залы — тұрақты 100 орындық жоспар (public/index.html SEAT_LAYOUT-мен сәйкес keys: "1".."100")
+const TOTAL_SEATS = 100;
+function _buildSeats(oldSeats) {
   const seats = {};
-  const rows = Number(cfg.rowCount || 8);
-  const cols = Number(cfg.colCount || 10);
-  for (let r = 0; r < rows; r++) {
-    const rl = _rowLabel(r);
-    for (let c = 1; c <= cols; c++) {
-      const k = `${rl}-${c}`;
-      if ((cfg.disabled || []).includes(k)) continue;
-      seats[k] = (oldSeats || {})[k] || 'free';
-    }
+  for (let i = 1; i <= TOTAL_SEATS; i++) {
+    seats[String(i)] = (oldSeats || {})[String(i)] || 'free';
   }
   return seats;
 }
-function saveSeatConfig(id, config) {
-  const ev = getEventById(id);
-  if (!ev) return null;
-  const newSeats = _buildSeats(config, ev.seats || {});
-  const total = Object.keys(newSeats).length;
-  const remaining = Object.values(newSeats).filter(s => s === 'free').length;
-  getDb().get('events').find({ id }).assign({
-    seatConfig: config, seats: newSeats,
-    totalTickets: total, remainingTickets: remaining
-  }).write();
-  return getEventById(id);
-}
 function toggleSeat(id, seatId) {
-  const ev = getEventById(id);
-  if (!ev || !ev.seats || ev.seats[seatId] === undefined) return null;
+  let ev = getEventById(id);
+  if (!ev) return null;
+  if (!ev.seats || Object.keys(ev.seats).length === 0) {
+    const seats = _buildSeats({});
+    getDb().get('events').find({ id }).assign({
+      seats, totalTickets: TOTAL_SEATS, remainingTickets: TOTAL_SEATS,
+    }).write();
+    ev = getEventById(id);
+  }
+  if (ev.seats[seatId] === undefined) return null;
   const newStatus = ev.seats[seatId] === 'taken' ? 'free' : 'taken';
   const seats = { ...ev.seats, [seatId]: newStatus };
   const remaining = Object.values(seats).filter(s => s === 'free').length;
@@ -216,7 +206,7 @@ function updateSettings(updates) {
 module.exports = {
   getDb,
   getEvents, getEventById, getTodayEvent, getVotingEvent, createEvent, updateEvent, deleteEvent, changeTickets,
-  adjustVoteOffset, resetVoteOffsets, saveSeatConfig, toggleSeat,
+  adjustVoteOffset, resetVoteOffsets, toggleSeat,
   getVotesByEvent, getAllVotesSummary, tokenExists, createVote, deleteVotesByEvent,
   getMedia, getMediaById, createMedia, updateMedia, deleteMedia,
   getSponsors, getSponsorById, createSponsor, updateSponsor, deleteSponsor,
