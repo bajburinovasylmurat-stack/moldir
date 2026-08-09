@@ -60,6 +60,7 @@ function createEvent(data) {
     kaspiLink: data.kaspiLink || null,
     kaspiLink1: data.kaspiLink1 || null,
     kaspiLink2: data.kaspiLink2 || null,
+    tablePrices: data.tablePrices || defaultTablePrices(),
     votingOpen: data.votingOpen === true,
     active: data.active !== false, createdAt: new Date().toISOString(),
   };
@@ -97,13 +98,31 @@ function resetVoteOffsets(eventId) {
   getDb().get('events').find({ id: eventId }).assign({ voteOffsets: { r1: 0, r2: 0 } }).write();
 }
 
-// ─── Seats ────────────────────────────────────────────────────
-// Мөлдір Өлең залы — тұрақты 100 орындық жоспар (public/index.html SEAT_LAYOUT-мен сәйкес keys: "1".."100")
-const TOTAL_SEATS = 100;
+// ─── Tables & Seats ─────────────────────────────────────────────
+// Мөлдір Өлең залы — 25 үстел × 4 орын = 100 орын. Seats keys: "<table>-<seat>", мыс. "1-3".
+const TOTAL_TABLES = 25;
+const SEATS_PER_TABLE = 4;
+const TABLE_TIERS = {
+  1: 'vip', 2: 'vip', 3: 'vip',
+  4: 'mid', 5: 'mid', 6: 'mid', 7: 'mid',
+  8: 'std', 9: 'std', 10: 'std', 11: 'std', 12: 'std',
+  13: 'std', 14: 'std', 15: 'std', 16: 'std', 17: 'std',
+  18: 'std', 19: 'std', 20: 'std', 21: 'std', 22: 'std',
+  23: 'std', 24: 'std', 25: 'std',
+};
+const TIER_DEFAULT_PRICE = { vip: 10000, mid: 7000, std: 5000 };
+function defaultTablePrices() {
+  const out = {};
+  for (let t = 1; t <= TOTAL_TABLES; t++) out[t] = TIER_DEFAULT_PRICE[TABLE_TIERS[t]];
+  return out;
+}
 function _buildSeats(oldSeats) {
   const seats = {};
-  for (let i = 1; i <= TOTAL_SEATS; i++) {
-    seats[String(i)] = (oldSeats || {})[String(i)] || 'free';
+  for (let t = 1; t <= TOTAL_TABLES; t++) {
+    for (let s = 1; s <= SEATS_PER_TABLE; s++) {
+      const k = `${t}-${s}`;
+      seats[k] = (oldSeats || {})[k] || 'free';
+    }
   }
   return seats;
 }
@@ -113,7 +132,7 @@ function toggleSeat(id, seatId) {
   if (!ev.seats || Object.keys(ev.seats).length === 0) {
     const seats = _buildSeats({});
     getDb().get('events').find({ id }).assign({
-      seats, totalTickets: TOTAL_SEATS, remainingTickets: TOTAL_SEATS,
+      seats, totalTickets: TOTAL_TABLES * SEATS_PER_TABLE, remainingTickets: TOTAL_TABLES * SEATS_PER_TABLE,
     }).write();
     ev = getEventById(id);
   }
