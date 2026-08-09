@@ -481,109 +481,33 @@ function openBuy(ev){
       <span style="font-size:1.3rem;color:var(--gold2);font-weight:700">${(ev.ticketPrice||0).toLocaleString('ru')} ₸</span>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="openBuyStep2(${JSON.stringify(ev).replace(/"/g,'&quot;')})">Билет алуға өту →</button>
+      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="openSeatSelect(${JSON.stringify(ev).replace(/"/g,'&quot;')})">Билет алуға өту →</button>
       <button class="btn btn-ghost" onclick="closeModal()">Жабу</button>
     </div>`);
 }
 
-window.openBuyStep2=function(ev, qty){
-  qty = qty||1;
-  const total = (ev.ticketPrice||0)*qty;
-  showModal(`<div class="modal-title">🎟 Билет сатып алу</div>
-    <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:1.1rem;margin-bottom:1rem">
-      <div style="font-size:.8rem;color:var(--gold);font-family:sans-serif;margin-bottom:.3rem">${fd(ev.date)} · ${ev.time||'19:00'}</div>
-      <div style="margin-bottom:.4rem"><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3)">vs</span> <span style="color:var(--accent)">${ev.region2}</span></div>
-    </div>
-    <div style="margin-bottom:1rem">
-      <label style="font-size:.78rem;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;font-family:sans-serif;margin-bottom:.5rem;display:block">Билет саны</label>
-      <div style="display:flex;align-items:center;gap:.8rem">
-        <button onclick="changeQty(${JSON.stringify(ev).replace(/"/g,'&quot;')},-1)" style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--txt);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
-        <span id="buyQty" style="font-size:1.4rem;font-weight:700;color:var(--gold2);min-width:30px;text-align:center">${qty}</span>
-        <button onclick="changeQty(${JSON.stringify(ev).replace(/"/g,'&quot;')},1)" style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);color:var(--txt);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
-        <span style="font-size:.85rem;color:var(--txt3);font-family:sans-serif">×&nbsp;${(ev.ticketPrice||0).toLocaleString('ru')} ₸</span>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem">
-      <span style="color:var(--txt2);font-size:.88rem">Жалпы сома</span>
-      <span id="buyTotal" style="font-size:1.3rem;color:var(--gold2);font-weight:700">${total.toLocaleString('ru')} ₸</span>
-    </div>
-    <p style="color:var(--txt2);font-size:.87rem;line-height:1.7;margin-bottom:1rem">Каспи арқылы төлем жасаңыз.<br>Чекті WhatsApp-қа жіберіңіз: <strong style="color:var(--gold)" id="bwa">+7 701 620 2086</strong></p>
-    <div class="modal-actions">
-      <a href="${ev.kaspiLink||'https://kaspi.kz/pay'}" id="bkaspi" target="_blank" class="btn btn-gold" style="flex:1;justify-content:center">💳 Каспи арқылы төлеу →</a>
-      <a id="bwalink" href="#" target="_blank" class="btn btn-outline" style="flex:1;justify-content:center">📱 WhatsApp чек</a>
-    </div>
-    <button class="btn btn-ghost" style="width:100%;margin-top:.6rem;justify-content:center" onclick="openBuy(${JSON.stringify(ev).replace(/"/g,'&quot;')})">← Артқа</button>`);
-  api('GET','/settings/public').then(s=>{
-    const wa=s.whatsapp||'+77016202086';
-    const kl=ev.kaspiLink||s.kaspi_link||'https://kaspi.kz/pay';
-    const waNum=wa.replace(/\D/g,'');
-    document.getElementById('bwa').textContent=wa;
-    document.getElementById('bkaspi').href=kl;
-    // WhatsApp message with event details and ticket count
-    const msg=encodeURIComponent(
-      `Сәлем! Билет алғым келеді:\n` +
-      `📅 Күні: ${fd(ev.date)} ${ev.time||'19:00'}\n` +
-      `🏆 Дуэль: ${ev.region1} vs ${ev.region2}\n` +
-      `🎟 Билет саны: ${qty} дана\n` +
-      `💰 Сома: ${total.toLocaleString('ru')} ₸\n` +
-      `Чекті жіберемін.`
-    );
-    document.getElementById('bwalink').href=`https://wa.me/${waNum}?text=${msg}`;
-    // Store for qty changes
-    window._buyEv=ev; window._buyWa=waNum; window._buyKl=kl;
-  }).catch(()=>{});
-};
-
-window.changeQty=function(ev,delta){
-  const maxQ=ev.remainingTickets||100;
-  const qEl=document.getElementById('buyQty');
-  const tEl=document.getElementById('buyTotal');
-  const waEl=document.getElementById('bwalink');
-  if(!qEl)return;
-  let q=parseInt(qEl.textContent)+delta;
-  if(q<1)q=1;
-  if(q>Math.min(10,maxQ))q=Math.min(10,maxQ);
-  qEl.textContent=q;
-  const total=(ev.ticketPrice||0)*q;
-  tEl.textContent=total.toLocaleString('ru')+' ₸';
-  const wa=window._buyWa||'77016202086';
-  const msg=encodeURIComponent(
-    `Сәлем! Билет алғым келеді:\n` +
-    `📅 Күні: ${fd(ev.date)} ${ev.time||'19:00'}\n` +
-    `🏆 Дуэль: ${ev.region1} vs ${ev.region2}\n` +
-    `🎟 Билет саны: ${q} дана\n` +
-    `💰 Сома: ${total.toLocaleString('ru')} ₸\n` +
-    `Чекті жіберемін.`
-  );
-  waEl.href=`https://wa.me/${wa}?text=${msg}`;
-};
-
-// ─ Public Seat Selection ─
+// ─ Public Seat Selection — Мөлдір Өлең залы, 100 орын ─
 let _selSeats={};
 window.openSeatSelect=function(ev){
   _selSeats={};
   _renderSeatSelect(ev);
 };
 function _selTotal(ev){
-  const cfg=ev.seatConfig||{};
-  return Object.keys(_selSeats).reduce((s,k)=>s+_seatPrice(k,cfg),0);
+  return Object.values(_selSeats).reduce((s,p)=>s+p,0);
 }
-function _seatPrice(k,cfg){const r=k.split('-')[0];return Number((cfg.rowPrices||{})[r]||cfg.basePrice||0);}
 window.selSeat=function(k,price){
   if(_selSeats[k])delete _selSeats[k];else _selSeats[k]=price;
-  // re-render seats area only
   const wrap=document.getElementById('pubSeatWrap');
   const summ=document.getElementById('pubSeatSummary');
   if(wrap)wrap.innerHTML=buildSeatMapHTML(window._selEv,{selectedKeys:_selSeats});
   if(summ)summ.innerHTML=_seatSummaryHTML(window._selEv);
 };
 function _seatSummaryHTML(ev){
-  const keys=Object.keys(_selSeats);
+  const keys=Object.keys(_selSeats).map(Number).sort((a,b)=>a-b);
   const total=_selTotal(ev);
-  const cfg=ev.seatConfig||{};
   if(!keys.length) return `<div style="color:var(--txt3);font-size:.85rem;text-align:center;padding:.8rem">Орын таңдаңыз</div>`;
-  return `<div style="font-size:.8rem;color:var(--txt3);margin-bottom:.4rem">Таңдалған:</div>
-    <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">${keys.map(k=>`<span class="tag tag-gold">${k} — ${_seatPrice(k,cfg).toLocaleString('ru')} ₸</span>`).join('')}</div>
+  return `<div style="font-size:.8rem;color:var(--txt3);margin-bottom:.4rem">Таңдалған орындар:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">${keys.map(k=>`<span class="tag tag-gold">№${k}</span>`).join('')}</div>
     <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:.6rem">
       <span style="color:var(--txt2);font-size:.88rem">Жиыны:</span>
       <span style="font-size:1.2rem;color:var(--gold2);font-weight:700">${total.toLocaleString('ru')} ₸</span>
@@ -602,10 +526,9 @@ function _renderSeatSelect(ev){
 }
 window._proceedSeatPayment=function(){
   const ev=window._selEv;
-  const keys=Object.keys(_selSeats);
+  const keys=Object.keys(_selSeats).map(Number).sort((a,b)=>a-b);
   if(!keys.length){toast('Орын таңдаңыз','err');return;}
   const total=_selTotal(ev);
-  const cfg=ev.seatConfig||{};
   api('GET','/settings/public').then(s=>{
     const wa=s.whatsapp||'+77016202086';
     const kl=ev.kaspiLink||s.kaspi_link||'https://kaspi.kz/pay';
@@ -614,13 +537,13 @@ window._proceedSeatPayment=function(){
       `Сәлем! Орын брондағым келеді:\n`+
       `📅 ${fd(ev.date)} ${ev.time||'19:00'}\n`+
       `🏆 ${ev.region1} vs ${ev.region2}\n`+
-      `💺 Орындар: ${keys.join(', ')}\n`+
+      `💺 Орындар: №${keys.join(', №')}\n`+
       `💰 Жиыны: ${total.toLocaleString('ru')} ₸\nЧекті жіберемін.`
     );
     showModal(`<div class="modal-title">💳 Төлем</div>
       <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:1rem;margin-bottom:1rem">
         <div style="font-size:.8rem;color:var(--gold);margin-bottom:.3rem">${fd(ev.date)} · ${ev.region1} vs ${ev.region2}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">${keys.map(k=>`<span class="tag tag-gold">${k}</span>`).join('')}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">${keys.map(k=>`<span class="tag tag-gold">№${k}</span>`).join('')}</div>
         <div style="font-size:1.3rem;color:var(--gold2);font-weight:700">${total.toLocaleString('ru')} ₸</div>
       </div>
       <p style="color:var(--txt2);font-size:.87rem;line-height:1.7;margin-bottom:1rem">Каспи арқылы төлеп, чекті WhatsApp-қа жіберіңіз: <strong style="color:var(--gold)">${wa}</strong></p>
@@ -945,50 +868,96 @@ window.adjV=async function(eid,region,delta){
 };
 window.resetVotes=async function(eid){if(!confirm('Барлық дауысты жою?'))return;try{await api('DELETE','/votes/'+eid);toast('Тазаланды','info');aVotes();}catch(e){toast(e.message,'err');}};
 
-// ─ Seat helpers ─
-function _rl(i){return String.fromCharCode(65+i);}
-function _seatPrice(k,cfg){const r=k.split('-')[0];return Number((cfg.rowPrices||{})[r]||cfg.basePrice||0);}
+// ─ Seat helpers — Мөлдір Өлең залы, тұрақты 100 орындық жоспар ─
+// x/y/w/h = SVG координаттары (Phantom Lounge стиліндегі клиенттер тобы). №1 сахнаға ең жақын.
+const SEAT_LAYOUT=[
+  {id:1,x:145,y:772,w:38,h:28},{id:2,x:181,y:772,w:38,h:28},{id:3,x:145,y:745,w:38,h:28},{id:4,x:181,y:745,w:38,h:28},
+  {id:5,x:270,y:772,w:38,h:28},{id:6,x:270,y:745,w:38,h:28},{id:7,x:145,y:707,w:38,h:28},{id:8,x:181,y:707,w:38,h:28},
+  {id:9,x:145,y:680,w:38,h:28},{id:10,x:181,y:680,w:38,h:28},{id:11,x:270,y:707,w:38,h:28},{id:12,x:270,y:680,w:38,h:28},
+  {id:13,x:350,y:610,w:38,h:28},{id:14,x:350,y:637,w:38,h:28},{id:15,x:386,y:610,w:38,h:28},{id:16,x:386,y:637,w:38,h:28},
+  {id:17,x:460,y:610,w:38,h:28},{id:18,x:460,y:637,w:38,h:28},{id:19,x:496,y:610,w:38,h:28},{id:20,x:496,y:637,w:38,h:28},
+  {id:21,x:574,y:610,w:38,h:28},{id:22,x:574,y:637,w:38,h:28},{id:23,x:610,y:610,w:38,h:28},{id:24,x:610,y:637,w:38,h:28},
+  {id:25,x:181,y:637,w:38,h:28},{id:26,x:181,y:610,w:38,h:28},{id:27,x:240,y:520,w:38,h:28},{id:28,x:240,y:548,w:38,h:28},
+  {id:29,x:277,y:520,w:38,h:28},{id:30,x:277,y:548,w:38,h:28},{id:31,x:350,y:520,w:38,h:28},{id:32,x:350,y:548,w:38,h:28},
+  {id:33,x:386,y:520,w:38,h:28},{id:34,x:386,y:548,w:38,h:28},{id:35,x:460,y:520,w:38,h:28},{id:36,x:460,y:548,w:38,h:28},
+  {id:37,x:496,y:520,w:38,h:28},{id:38,x:496,y:548,w:38,h:28},{id:39,x:574,y:520,w:38,h:28},{id:40,x:574,y:548,w:38,h:28},
+  {id:41,x:610,y:520,w:38,h:28},{id:42,x:610,y:548,w:38,h:28},{id:43,x:185,y:405,w:38,h:28},{id:44,x:185,y:432,w:38,h:28},
+  {id:45,x:222,y:405,w:38,h:28},{id:46,x:222,y:432,w:38,h:28},{id:47,x:350,y:405,w:38,h:28},{id:48,x:350,y:433,w:38,h:28},
+  {id:49,x:386,y:405,w:38,h:28},{id:50,x:386,y:433,w:38,h:28},{id:51,x:460,y:405,w:38,h:28},{id:52,x:460,y:433,w:38,h:28},
+  {id:53,x:496,y:405,w:38,h:28},{id:54,x:496,y:433,w:38,h:28},{id:55,x:574,y:405,w:38,h:28},{id:56,x:574,y:433,w:38,h:28},
+  {id:57,x:610,y:405,w:38,h:28},{id:58,x:610,y:433,w:38,h:28},{id:59,x:200,y:280,w:38,h:28},{id:60,x:200,y:310,w:38,h:28},
+  {id:61,x:350,y:280,w:38,h:28},{id:62,x:350,y:312,w:38,h:28},{id:63,x:386,y:280,w:38,h:28},{id:64,x:386,y:312,w:38,h:28},
+  {id:65,x:460,y:280,w:38,h:28},{id:66,x:460,y:312,w:38,h:28},{id:67,x:496,y:280,w:38,h:28},{id:68,x:496,y:312,w:38,h:28},
+  {id:69,x:574,y:280,w:38,h:28},{id:70,x:574,y:312,w:38,h:28},{id:71,x:610,y:280,w:38,h:28},{id:72,x:610,y:312,w:38,h:28},
+  {id:73,x:350,y:200,w:38,h:28},{id:74,x:350,y:231,w:38,h:28},{id:75,x:386,y:200,w:38,h:28},{id:76,x:386,y:231,w:38,h:28},
+  {id:77,x:460,y:200,w:38,h:28},{id:78,x:460,y:231,w:38,h:28},{id:79,x:496,y:200,w:38,h:28},{id:80,x:496,y:231,w:38,h:28},
+  {id:81,x:574,y:200,w:38,h:28},{id:82,x:574,y:231,w:38,h:28},{id:83,x:610,y:200,w:38,h:28},{id:84,x:610,y:231,w:38,h:28},
+  // +16 (84→100): ең артқы қатар, сахнадан ең алые
+  {id:85,x:270,y:141,w:38,h:28},{id:86,x:350,y:141,w:38,h:28},{id:87,x:386,y:141,w:38,h:28},{id:88,x:460,y:141,w:38,h:28},
+  {id:89,x:496,y:141,w:38,h:28},{id:90,x:574,y:141,w:38,h:28},{id:91,x:610,y:141,w:38,h:28},{id:92,x:683,y:141,w:38,h:28},
+  {id:93,x:270,y:110,w:38,h:28},{id:94,x:350,y:110,w:38,h:28},{id:95,x:386,y:110,w:38,h:28},{id:96,x:460,y:110,w:38,h:28},
+  {id:97,x:496,y:110,w:38,h:28},{id:98,x:574,y:110,w:38,h:28},{id:99,x:610,y:110,w:38,h:28},{id:100,x:683,y:110,w:38,h:28},
+];
 function _countFree(seats){return Object.values(seats||{}).filter(v=>v==='free').length;}
 function _countTotal(seats){return Object.keys(seats||{}).length;}
 
 function buildSeatMapHTML(ev, opts){
   // opts: { isAdmin, selectedKeys }
-  const cfg=ev.seatConfig||{rowCount:8,colCount:10,basePrice:ev.ticketPrice||3000,rowPrices:{},disabled:[]};
   const seats=ev.seats||{};
-  const rows=Number(cfg.rowCount||8);
-  const cols=Number(cfg.colCount||10);
   const sel=opts&&opts.selectedKeys||{};
-  let h='<div style="overflow-x:auto"><div style="display:inline-block;min-width:100%">';
-  // Stage
-  h+=`<div style="text-align:center;margin-bottom:.6rem"><div style="height:6px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:3px;opacity:.5;max-width:300px;margin:0 auto .3rem"></div><div style="font-size:.65rem;letter-spacing:.2em;color:var(--txt3);font-family:sans-serif">САХНА</div></div>`;
-  // Legend
-  h+=`<div style="display:flex;gap:.8rem;margin-bottom:.6rem;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--txt3)"><div style="width:14px;height:14px;border-radius:2px;background:var(--bg3);border:2px solid rgba(201,168,76,.4)"></div>Бос</div>
-    <div style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--txt3)"><div style="width:14px;height:14px;border-radius:2px;background:rgba(201,68,68,.2);border:2px solid rgba(201,68,68,.5)"></div>Брондалған</div>
-    <div style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--txt3)"><div style="width:14px;height:14px;border-radius:2px;background:rgba(201,168,76,.3);border:2px solid var(--gold2)"></div>Таңдалған</div>
+  const price=Number(ev.ticketPrice)||3000;
+  const xs=SEAT_LAYOUT.map(s=>s.x), xe=SEAT_LAYOUT.map(s=>s.x+s.w), ys=SEAT_LAYOUT.map(s=>s.y);
+  const minX=Math.min(...xs)-22, maxX=Math.max(...xe)+22;
+  const minY=Math.min(...ys)-22, maxSeatY=Math.max(...SEAT_LAYOUT.map(s=>s.y+s.h));
+  const stageY=maxSeatY+38, maxY=stageY+70;
+  const vbW=maxX-minX, vbH=maxY-minY;
+
+  let seatEls='';
+  SEAT_LAYOUT.forEach(s=>{
+    const k=String(s.id);
+    const st=seats[k]||'free';
+    const isSel=!!sel[k];
+    let bg='rgba(26,26,36,.92)', bd='rgba(201,168,76,.4)', col='var(--txt2)', cur='pointer';
+    if(isSel){bg='rgba(201,168,76,.35)';bd='var(--gold2)';col='var(--gold)';}
+    else if(st==='taken'){bg='rgba(201,68,68,.22)';bd='rgba(201,68,68,.6)';col='rgba(224,120,120,.9)';cur=opts&&opts.isAdmin?'pointer':'default';}
+    const click=opts&&opts.isAdmin?`onclick="adminToggleSeat('${ev.id}','${k}')"`:
+      (st==='free'||isSel)?`onclick="selSeat('${k}',${price})"`:'';
+    const label=st==='taken'&&!(opts&&opts.isAdmin)?'✕':k;
+    seatEls+=`<g ${click} style="cursor:${cur}">
+      <title>№${k} — ${price.toLocaleString('ru')} ₸</title>
+      <rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="6" fill="${bg}" stroke="${bd}" stroke-width="2"></rect>
+      <text x="${s.x+s.w/2}" y="${s.y+s.h/2+4}" text-anchor="middle" font-size="11" font-weight="700" fill="${col}" style="pointer-events:none;font-family:sans-serif">${label}</text>
+    </g>`;
+  });
+
+  const cx=minX+vbW/2;
+  const stageEls=`
+    <rect x="${cx-150}" y="${stageY}" width="300" height="5" rx="2.5" fill="url(#stageGrad)"></rect>
+    <text x="${cx}" y="${stageY+26}" text-anchor="middle" font-size="13" letter-spacing="5" fill="var(--txt3)" style="font-family:sans-serif">САХНА</text>`;
+
+  return `<div style="overflow-x:auto">
+    <div style="display:flex;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;justify-content:center">
+      <div style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--txt3)"><div style="width:14px;height:14px;border-radius:2px;background:var(--bg3);border:2px solid rgba(201,168,76,.4)"></div>Бос</div>
+      <div style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--txt3)"><div style="width:14px;height:14px;border-radius:2px;background:rgba(201,68,68,.2);border:2px solid rgba(201,68,68,.5)"></div>Брондалған</div>
+      <div style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--txt3)"><div style="width:14px;height:14px;border-radius:2px;background:rgba(201,168,76,.3);border:2px solid var(--gold2)"></div>Таңдалған</div>
+    </div>
+    <svg viewBox="${minX} ${minY} ${vbW} ${vbH}" style="width:100%;max-width:540px;display:block;margin:0 auto">
+      <defs>
+        <radialGradient id="hallGlow" cx="50%" cy="12%" r="80%">
+          <stop offset="0%" stop-color="rgba(201,168,76,.16)"></stop>
+          <stop offset="100%" stop-color="transparent"></stop>
+        </radialGradient>
+        <linearGradient id="stageGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="transparent"></stop>
+          <stop offset="50%" stop-color="var(--gold)"></stop>
+          <stop offset="100%" stop-color="transparent"></stop>
+        </linearGradient>
+      </defs>
+      <rect x="${minX}" y="${minY}" width="${vbW}" height="${vbH}" fill="url(#hallGlow)"></rect>
+      ${seatEls}
+      ${stageEls}
+    </svg>
   </div>`;
-  for(let r=0;r<rows;r++){
-    const rl=_rl(r);
-    h+=`<div style="display:flex;align-items:center;gap:3px;margin-bottom:3px">`;
-    h+=`<div style="width:18px;text-align:center;font-size:.7rem;color:var(--txt3);font-weight:600;flex-shrink:0">${rl}</div>`;
-    for(let c=1;c<=cols;c++){
-      const k=`${rl}-${c}`;
-      if((cfg.disabled||[]).includes(k)){h+=`<div style="width:26px;height:26px;flex-shrink:0"></div>`;continue;}
-      const st=seats[k]||'free';
-      const isSel=!!sel[k];
-      let bg='var(--bg3)',bd='rgba(201,168,76,.35)',col='var(--txt3)',cur='pointer';
-      if(isSel){bg='rgba(201,168,76,.3)';bd='var(--gold2)';col='var(--gold)';}
-      else if(st==='taken'){bg='rgba(201,68,68,.15)';bd='rgba(201,68,68,.5)';col='rgba(201,68,68,.7)';cur=opts&&opts.isAdmin?'pointer':'default';}
-      const click=opts&&opts.isAdmin?`onclick="adminToggleSeat('${ev.id}','${k}')"`:
-        (st==='free'||isSel)?`onclick="selSeat('${k}',${_seatPrice(k,cfg)})"`:' ';
-      h+=`<div title="${k} — ${_seatPrice(k,cfg).toLocaleString('ru')} ₸" ${click}
-        style="width:26px;height:26px;border-radius:3px 3px 2px 2px;border:2px solid ${bd};background:${bg};color:${col};cursor:${cur};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;transition:all .1s">
-        ${st==='taken'&&!(opts&&opts.isAdmin)?'✕':c}</div>`;
-    }
-    h+=`</div>`;
-  }
-  h+=`</div></div>`;
-  return h;
 }
 
 // ─ Admin Tickets ─
@@ -1023,7 +992,8 @@ async function aTickets(){
             <button class="btn btn-gold btn-sm" onclick="adjT('${ev.id}',1)">+1</button>
             <button class="btn btn-gold btn-sm" onclick="adjT('${ev.id}',10)">+10</button>
           </div>
-        </div>`;
+        </div>
+        <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:.6rem" onclick="openAdminSeatStatus('${ev.id}')">🎟 Сатылған орындарды белгілеу</button>`;
       c.appendChild(box);
     });
   }catch(e){c.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-msg">${e.message}</div></div>`;}
@@ -1037,121 +1007,31 @@ window.saveTickets=async function(id){
 window.adjT=async function(id,d){try{await api('PATCH','/events/'+id+'/tickets',{delta:d});toast(`${d>0?'+':''}${d} билет`,'info');aTickets();}catch(e){toast(e.message,'err');}};
 
 
-// ─ Admin seat builder modal ─
-let _sbEv=null,_sbRows=8,_sbCols=10,_sbBase=3000,_sbRP={},_sbDis=[];
-window.openSeatBuilderM=function(ev){
-  _sbEv=ev;
-  const cfg=ev.seatConfig||{rowCount:8,colCount:10,basePrice:ev.ticketPrice||3000,rowPrices:{},disabled:[]};
-  _sbRows=Number(cfg.rowCount||8);_sbCols=Number(cfg.colCount||10);
-  _sbBase=Number(cfg.basePrice||3000);_sbRP={...(cfg.rowPrices||{})};_sbDis=[...(cfg.disabled||[])];
-  _renderSeatBuilder();
-};
-function _sbBuildMap(){
-  let h='<div style="overflow-x:auto"><div style="display:inline-block;min-width:100%">';
-  h+=`<div style="text-align:center;margin-bottom:.6rem;font-size:.65rem;letter-spacing:.2em;color:var(--txt3);font-family:sans-serif">▲ САХНА ▲</div>`;
-  for(let r=0;r<_sbRows;r++){
-    const rl=_rl(r);
-    h+=`<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px"><div style="width:20px;text-align:center;font-size:.75rem;color:var(--gold);font-weight:700;flex-shrink:0">${rl}</div>`;
-    for(let c=1;c<=_sbCols;c++){
-      const k=`${rl}-${c}`;
-      const isDis=_sbDis.includes(k);
-      if(isDis){
-        h+=`<div data-seat="${k}" title="${k} — басып қосу" style="width:30px;height:30px;border-radius:4px;border:2px dashed rgba(255,80,80,.35);background:rgba(255,50,50,.08);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,100,100,.5);user-select:none">✕</div>`;
-      } else {
-        h+=`<div data-seat="${k}" title="${k} — басып өшіру" style="width:30px;height:30px;border-radius:4px;border:2px solid rgba(201,168,76,.5);background:rgba(201,168,76,.12);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--gold);user-select:none">${c}</div>`;
-      }
-    }
-    h+=`</div>`;
-  }
-  h+=`</div></div>`;
-  return h;
-}
-function _sbAttachMapEvents(){
-  const wrap=document.getElementById('sb-map-wrap');
-  if(!wrap)return;
-  wrap.addEventListener('click',function(e){
-    const seat=e.target.closest('[data-seat]');
-    if(!seat)return;
-    const k=seat.dataset.seat;
-    const idx=_sbDis.indexOf(k);
-    if(idx>=0)_sbDis.splice(idx,1);else _sbDis.push(k);
-    // Toggle visual instantly without re-rendering whole modal
-    const isDis=_sbDis.includes(k);
-    if(isDis){
-      seat.style.border='2px dashed rgba(255,80,80,.35)';
-      seat.style.background='rgba(255,50,50,.08)';
-      seat.style.color='rgba(255,100,100,.5)';
-      seat.style.fontSize='9px';
-      seat.innerHTML='✕';
-      seat.title=k+' — басып қосу';
-    } else {
-      seat.style.border='2px solid rgba(201,168,76,.5)';
-      seat.style.background='rgba(201,168,76,.12)';
-      seat.style.color='var(--gold)';
-      seat.style.fontSize='8px';
-      seat.innerHTML=k.split('-')[1];
-      seat.title=k+' — басып өшіру';
-    }
-  });
-}
-function _renderSeatBuilder(){
-  let rpFields='';
-  for(let r=0;r<_sbRows;r++){
-    const rl=_rl(r);
-    rpFields+=`<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem">
-      <span style="width:20px;color:var(--gold);font-weight:700;font-size:.9rem">${rl}</span>
-      <input type="number" id="sbRP${rl}" placeholder="${_sbBase} ₸" value="${_sbRP[rl]||''}"
-        style="flex:1;padding:.35rem .6rem;font-size:.82rem"
-        oninput="_sbRP['${rl}']=this.value?Number(this.value):undefined">
-    </div>`;
-  }
-
-  // Legend
-  const legend=`<div style="display:flex;gap:1rem;align-items:center;margin-bottom:.6rem;font-size:.72rem;color:var(--txt3)">
-    <span><span style="display:inline-block;width:14px;height:14px;border-radius:2px;border:2px solid rgba(201,168,76,.5);background:rgba(201,168,76,.12);vertical-align:middle;margin-right:3px"></span>Бос орын</span>
-    <span><span style="display:inline-block;width:14px;height:14px;border-radius:2px;border:2px dashed rgba(255,80,80,.35);background:rgba(255,50,50,.08);vertical-align:middle;margin-right:3px"></span>Өшірілген (дәліз/жол)</span>
-    <span style="color:var(--gold)">👆 Орынды басып өшір/қос</span>
-  </div>`;
-
-  showModal(`<div class="modal-title">⚙ Орын орналастыру</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-bottom:.9rem">
-      <div><label style="font-size:.75rem;color:var(--txt3);font-family:sans-serif;display:block;margin-bottom:.25rem">Қатар саны</label>
-        <input type="number" id="sbRows" min="1" max="26" value="${_sbRows}"
-          onchange="_sbRows=Number(this.value)||8;_renderSeatBuilder()"></div>
-      <div><label style="font-size:.75rem;color:var(--txt3);font-family:sans-serif;display:block;margin-bottom:.25rem">Орын/қатар</label>
-        <input type="number" id="sbCols" min="1" max="30" value="${_sbCols}"
-          onchange="_sbCols=Number(this.value)||10;_renderSeatBuilder()"></div>
-      <div><label style="font-size:.75rem;color:var(--txt3);font-family:sans-serif;display:block;margin-bottom:.25rem">Негізгі баға ₸</label>
-        <input type="number" id="sbBase" min="0" value="${_sbBase}"
-          onchange="_sbBase=Number(this.value)||0;_renderSeatBuilder()"></div>
-    </div>
-    <div style="margin-bottom:.8rem">
-      <div style="font-size:.75rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.4rem">Қатар бойынша баға (міндетті емес)</div>
-      ${rpFields}
-    </div>
-    ${legend}
-    <div id="sb-map-wrap" style="margin-bottom:.9rem">${_sbBuildMap()}</div>
-    <div class="modal-actions">
-      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="_saveSeatConfig()">💾 Сақтау</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Болдырмау</button>
-    </div>`);
-  // Attach after DOM is ready
-  setTimeout(_sbAttachMapEvents, 0);
-}
-window._sbToggleDis=function(k){
-  const idx=_sbDis.indexOf(k);
-  if(idx>=0)_sbDis.splice(idx,1);else _sbDis.push(k);
-  // Re-render only the map portion
-  const wrap=document.getElementById('sb-map-wrap');
-  if(wrap){wrap.innerHTML=_sbBuildMap();_sbAttachMapEvents();}
-};
-window._saveSeatConfig=async function(){
-  // collect rowPrices from inputs
-  for(let r=0;r<_sbRows;r++){const rl=_rl(r);const v=document.getElementById('sbRP'+rl)?.value;if(v)_sbRP[rl]=Number(v);else delete _sbRP[rl];}
-  const cfg={rowCount:_sbRows,colCount:_sbCols,basePrice:_sbBase,rowPrices:{..._sbRP},disabled:[..._sbDis]};
+// ─ Admin: mark sold seats ─
+window.openAdminSeatStatus=async function(evId){
   try{
-    await api('PUT','/events/'+_sbEv.id+'/seats/config',cfg);
-    toast('Орын картасы сақталды ✓','ok');closeModal();aTickets();
+    const ev=await api('GET','/events/'+evId);
+    _renderAdminSeatStatus(ev);
+  }catch(e){toast(e.message,'err');}
+};
+function _renderAdminSeatStatus(ev){
+  const free=_countFree(ev.seats||{});
+  const total=_countTotal(ev.seats||{})||100;
+  showModal(`<div class="modal-title">🎟 Сатылған орындарды белгілеу</div>
+    <div style="font-size:.78rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.8rem">${fd(ev.date)} · <span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span></div>
+    <p style="color:var(--txt2);font-size:.82rem;margin-bottom:.8rem">Каспиден чек келген орынды басып, «Брондалған» етіп белгілеңіз.</p>
+    <div id="adminSeatWrap">${buildSeatMapHTML(ev,{isAdmin:true})}</div>
+    <div id="adminSeatCount" style="text-align:center;margin-top:.8rem;font-size:.85rem;color:var(--txt2)">Бос: <strong style="color:var(--gold2)">${free}</strong> / ${total}</div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.8rem;justify-content:center" onclick="closeModal();aTickets()">Жабу</button>`);
+}
+window.adminToggleSeat=async function(evId,seatKey){
+  try{
+    await api('PATCH',`/events/${evId}/seats/${encodeURIComponent(seatKey)}`);
+    const ev=await api('GET','/events/'+evId);
+    const wrap=document.getElementById('adminSeatWrap');
+    if(wrap) wrap.innerHTML=buildSeatMapHTML(ev,{isAdmin:true});
+    const cnt=document.getElementById('adminSeatCount');
+    if(cnt) cnt.innerHTML=`Бос: <strong style="color:var(--gold2)">${_countFree(ev.seats||{})}</strong> / ${_countTotal(ev.seats||{})}`;
   }catch(e){toast(e.message,'err');}
 };
 
