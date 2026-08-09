@@ -904,27 +904,43 @@ function _tablePrice(ev,t){return Number((ev.tablePrices||{})[t])||TIER_META[TAB
 function _countFree(seats){return Object.values(seats||{}).filter(v=>v==='free').length;}
 function _countTotal(seats){return Object.keys(seats||{}).length;}
 
+const TABLE_ROW_LABEL={0:'1-ҚАТАР',1:'2-ҚАТАР'};
+const TABLE_SHAPE={vip:'14px',mid:'50%',std:'50%'};
+function _tableDot(angleDeg,r,color){
+  const rad=angleDeg*Math.PI/180;
+  const x=50+r*Math.cos(rad), y=50+r*Math.sin(rad);
+  return `<div style="position:absolute;left:${x}%;top:${y}%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:2px;background:${color}"></div>`;
+}
 function buildHallHTML(ev,opts){
   const seats=ev.seats||{};
   const isAdmin=opts&&opts.isAdmin;
-  let h=`<div style="text-align:center;margin-bottom:1rem">
-    <div style="font-size:.68rem;letter-spacing:.3em;color:var(--txt3);font-family:sans-serif">🎭 САХНА</div>
-    <div style="height:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:2px;opacity:.5;max-width:220px;margin:.4rem auto 0"></div>
+  let h=`<div style="text-align:center;margin-bottom:.9rem;padding:1.1rem 1rem .9rem;border-radius:50% 50% 8px 8px/22% 22% 6px 6px;background:linear-gradient(180deg,rgba(201,168,76,.1),transparent 70%);border:1px solid rgba(201,168,76,.18);border-bottom:none">
+    <div style="font-size:.95rem;color:var(--gold2);font-family:var(--font-display,serif);font-style:italic;margin-bottom:.3rem">✦ Мөлдір Өлең ✦</div>
+    <div style="font-size:.66rem;letter-spacing:.35em;color:var(--txt3);font-family:sans-serif">🎭 С А Х Н А</div>
   </div>`;
-  h+=`<div style="display:flex;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap;justify-content:center;font-size:.72rem;color:var(--txt3);font-family:sans-serif">
-    ${Object.entries(TIER_META).map(([k,m])=>`<div style="display:flex;align-items:center;gap:.3rem"><div style="width:12px;height:12px;border-radius:50%;background:${m.color}"></div>${m.label} · ${m.price.toLocaleString('ru')} ₸</div>`).join('')}
+  h+=`<div style="display:inline-flex;gap:1rem;flex-wrap:wrap;justify-content:center;font-size:.72rem;color:var(--txt2);font-family:sans-serif;border:1px solid var(--border2);border-radius:10px;padding:.55rem 1rem;margin-bottom:1.2rem;background:var(--bg3)">
+    <span style="color:var(--txt3);letter-spacing:.15em">БАҒА:</span>
+    ${Object.entries(TIER_META).map(([k,m])=>`<div style="display:flex;align-items:center;gap:.3rem"><div style="width:11px;height:11px;border-radius:3px;background:${m.color}"></div>${m.price.toLocaleString('ru')} ₸</div>`).join('')}
   </div>`;
-  TABLE_ROWS.forEach(row=>{
-    h+=`<div style="display:flex;gap:.7rem;justify-content:center;margin-bottom:.8rem;flex-wrap:wrap">`;
+  TABLE_ROWS.forEach((row,ri)=>{
+    if(TABLE_ROW_LABEL[ri]){
+      h+=`<div style="text-align:center;font-size:.66rem;letter-spacing:.25em;color:var(--txt3);font-family:sans-serif;margin-bottom:.5rem">${TABLE_ROW_LABEL[ri]}</div>`;
+    }
+    h+=`<div style="display:flex;gap:.8rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap">`;
     row.forEach(t=>{
-      const meta=TIER_META[TABLE_TIERS[t]];
+      const tier=TABLE_TIERS[t];
+      const meta=TIER_META[tier];
       const tSeats=[1,2,3,4].map(s=>seats[`${t}-${s}`]||'free');
       const freeCount=tSeats.filter(s=>s==='free').length;
       const price=_tablePrice(ev,t);
       const clickFn=isAdmin?`openAdminTableSeats(${t})`:`openTableSeats(${t})`;
-      h+=`<div onclick="${clickFn}" title="Үстел №${t} — ${price.toLocaleString('ru')} ₸/орын" style="cursor:pointer;width:62px;height:62px;border-radius:50%;border:2px solid ${meta.color};background:${meta.color}22;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:.15s;flex-shrink:0">
-        <div style="font-weight:700;color:${meta.color};font-size:.92rem">№${t}</div>
-        <div style="font-size:.6rem;color:var(--txt3);font-family:sans-serif">${freeCount}/4 бос</div>
+      const shape=TABLE_SHAPE[tier];
+      h+=`<div onclick="${clickFn}" title="Үстел №${t} — ${price.toLocaleString('ru')} ₸/орын" style="cursor:pointer;position:relative;width:66px;height:66px;flex-shrink:0">
+        ${[45,135,225,315].map(a=>_tableDot(a,58,meta.color+'99')).join('')}
+        <div style="position:absolute;inset:8px;border-radius:${shape};border:2px solid ${meta.color};background:radial-gradient(circle at 35% 30%,${meta.color}33,${meta.color}14);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:.15s">
+          <div style="font-weight:700;color:${meta.color};font-size:.9rem">№${t}</div>
+          <div style="font-size:.58rem;color:var(--txt3);font-family:sans-serif">${freeCount}/4 бос</div>
+        </div>
       </div>`;
     });
     h+=`</div>`;
