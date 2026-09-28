@@ -52,8 +52,8 @@ h3{font-size:1rem;color:var(--gold);margin-bottom:.4rem}
 .gold-line{width:50px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin:.6rem 0 1.1rem}
 
 /* HOME BACKGROUND POSTER */
-.home-bg{position:fixed;inset:0;z-index:-1;background:url('/hero-poster.webp') center 10% / cover no-repeat;filter:saturate(1.1) brightness(.48)}
-.home-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,15,.2) 0%,rgba(8,8,15,.55) 38%,rgba(8,8,15,.88) 62%,var(--bg) 100%)}
+.home-bg{position:fixed;inset:0;z-index:-1;background:url('/hero-poster.webp') top center / contain no-repeat,var(--bg);filter:saturate(1.1) brightness(.55)}
+.home-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,15,.05) 0%,rgba(8,8,15,.35) 55%,rgba(8,8,15,.8) 80%,var(--bg) 100%)}
 .home-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 55% at 50% 0%,rgba(201,168,76,.18),transparent 65%)}
 
 /* HERO */
