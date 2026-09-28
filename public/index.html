@@ -51,14 +51,13 @@ h2{font-size:1.5rem;color:var(--gold2);margin-bottom:.9rem}
 h3{font-size:1rem;color:var(--gold);margin-bottom:.4rem}
 .gold-line{width:50px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin:.6rem 0 1.1rem}
 
+/* HOME BACKGROUND POSTER */
+.home-bg{position:fixed;inset:0;z-index:-1;background:url('/hero-poster.webp') center 10% / cover no-repeat;filter:saturate(1.1) brightness(.48)}
+.home-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,15,.2) 0%,rgba(8,8,15,.55) 38%,rgba(8,8,15,.88) 62%,var(--bg) 100%)}
+.home-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 55% at 50% 0%,rgba(201,168,76,.18),transparent 65%)}
+
 /* HERO */
-.hero{text-align:center;padding:2.5rem 1.5rem 2.5rem;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,168,76,.14),transparent 70%);pointer-events:none}
-.hero-poster-wrap{position:relative;max-width:640px;margin:0 auto 2.2rem}
-.hero-poster-glow{position:absolute;inset:-18% -22%;background-size:cover;background-position:center 20%;filter:blur(75px) saturate(1.5) brightness(.65);opacity:.6;z-index:0;border-radius:50%;animation:heroGlowPulse 5s ease-in-out infinite}
-@keyframes heroGlowPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.78;transform:scale(1.04)}}
-.hero-poster-frame{position:relative;z-index:1;border-radius:24px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.7),0 0 0 1.5px rgba(201,168,76,.4),0 0 100px rgba(201,168,76,.22)}
-.hero-banner{width:100%;height:auto;display:block;margin:0}
+.hero{min-height:82vh;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding:2rem 1.5rem 3rem;position:relative}
 .hero-sub{font-size:.88rem;color:var(--txt2);max-width:480px;margin:.8rem auto 2.5rem;line-height:1.9}
 .ornament{color:var(--gold3);letter-spacing:.25em;font-size:.95rem;margin:.5rem 0}
 
@@ -183,13 +182,8 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;
 
 <!-- HOME -->
 <div class="page active" id="page-home">
+  <div class="home-bg"></div>
   <div class="hero">
-    <div class="hero-poster-wrap">
-      <div class="hero-poster-glow" style="background-image:url('/hero-poster.webp')"></div>
-      <div class="hero-poster-frame">
-        <img src="/hero-poster.webp" alt="Мөлдір Өлең — Grand Final, 30.09.2026" class="hero-banner">
-      </div>
-    </div>
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
       <button class="btn btn-gold" onclick="go('vote')">Дауыс беру →</button>
       <button class="btn btn-outline" onclick="go('tickets')">Билет алу</button>
