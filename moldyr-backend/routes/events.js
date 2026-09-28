@@ -12,9 +12,9 @@ router.get('/:id', (req, res) => {
   res.json(ev);
 });
 router.post('/', requireAuth, (req, res) => {
-  const { date, region1, region2 } = req.body;
-  if (!date || !region1 || !region2)
-    return res.status(400).json({ error: 'date, region1, region2 міндетті' });
+  const { date, region1, region2, region3 } = req.body;
+  if (!date || !region1 || !region2 || !region3)
+    return res.status(400).json({ error: 'date, region1, region2, region3 міндетті' });
   res.status(201).json(db.createEvent(req.body));
 });
 router.put('/:id', requireAuth, (req, res) => {

@@ -51,7 +51,7 @@ function getVotingEvent() {
 function createEvent(data) {
   const ev = {
     id: uuid(), date: data.date, time: data.time || '19:00',
-    region1: data.region1 || '', region2: data.region2 || '',
+    region1: data.region1 || '', region2: data.region2 || '', region3: data.region3 || '',
     poetsInfo: data.poetsInfo || '',
     guest: data.guest || null,
     poster: data.poster || null, ticketPrice: data.ticketPrice || 3000,
@@ -60,6 +60,7 @@ function createEvent(data) {
     kaspiLink: data.kaspiLink || null,
     kaspiLink1: data.kaspiLink1 || null,
     kaspiLink2: data.kaspiLink2 || null,
+    kaspiLink3: data.kaspiLink3 || null,
     tierPrices: data.tierPrices || defaultTierPrices(),
     votingOpen: data.votingOpen === true,
     active: data.active !== false, createdAt: new Date().toISOString(),
@@ -89,13 +90,13 @@ function changeTickets(id, delta) {
 function adjustVoteOffset(eventId, region, delta) {
   const ev = getEventById(eventId);
   if (!ev) return null;
-  const offsets = ev.voteOffsets || { r1: 0, r2: 0 };
+  const offsets = ev.voteOffsets || { r1: 0, r2: 0, r3: 0 };
   offsets[region] = Math.max(0, (offsets[region] || 0) + delta);
   getDb().get('events').find({ id: eventId }).assign({ voteOffsets: offsets }).write();
   return offsets;
 }
 function resetVoteOffsets(eventId) {
-  getDb().get('events').find({ id: eventId }).assign({ voteOffsets: { r1: 0, r2: 0 } }).write();
+  getDb().get('events').find({ id: eventId }).assign({ voteOffsets: { r1: 0, r2: 0, r3: 0 } }).write();
 }
 
 // ─── Seats ────────────────────────────────────────────────────
@@ -148,11 +149,12 @@ function getVotesByEvent(eventId) {
 function getAllVotesSummary() {
   return getEvents().map(ev => {
     const v = getVotesByEvent(ev.id);
-    const off = ev.voteOffsets || { r1: 0, r2: 0 };
+    const off = ev.voteOffsets || { r1: 0, r2: 0, r3: 0 };
     const r1 = v.filter(x => x.regionChoice === 1).length + (off.r1 || 0);
     const r2 = v.filter(x => x.regionChoice === 2).length + (off.r2 || 0);
-    return { eventId: ev.id, date: ev.date, region1: ev.region1, region2: ev.region2,
-             r1Count: r1, r2Count: r2, total: r1 + r2 };
+    const r3 = v.filter(x => x.regionChoice === 3).length + (off.r3 || 0);
+    return { eventId: ev.id, date: ev.date, region1: ev.region1, region2: ev.region2, region3: ev.region3,
+             r1Count: r1, r2Count: r2, r3Count: r3, total: r1 + r2 + r3 };
   });
 }
 function tokenExists(token) {
