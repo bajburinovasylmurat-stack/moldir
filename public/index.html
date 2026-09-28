@@ -6,7 +6,7 @@
 <title>Мөлдір Өлең — Ұлттық Поэзиялық Жоба</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#08080f;--bg2:#111118;--bg3:#1a1a24;--gold:#c9a84c;--gold2:#e8c870;--gold3:#f5e0a0;--txt:#f0ece0;--txt2:#b0aa98;--txt3:#6a6458;--border:#2a2836;--border2:#3d3a4e;--accent:#8b6fd4;--danger:#c94444;--success:#4a9e6a;--rad:8px;--rad2:14px}
+:root{--bg:#08080f;--bg2:#111118;--bg3:#1a1a24;--gold:#c9a84c;--gold2:#e8c870;--gold3:#f5e0a0;--txt:#f0ece0;--txt2:#b0aa98;--txt3:#6a6458;--border:#2a2836;--border2:#3d3a4e;--accent:#8b6fd4;--accent3:#3fb6ad;--danger:#c94444;--success:#4a9e6a;--rad:8px;--rad2:14px}
 body{background:var(--bg);color:var(--txt);font-family:Georgia,serif;min-height:100vh;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;font-family:inherit;border:none;outline:none;transition:all .2s}
@@ -65,11 +65,13 @@ h3{font-size:1rem;color:var(--gold);margin-bottom:.4rem}
 .region-box{flex:1;min-width:170px;border-radius:14px;padding:1.4rem;text-align:center}
 .r1-box{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.25)}
 .r2-box{background:rgba(138,111,212,.07);border:1px solid rgba(138,111,212,.25)}
+.r3-box{background:rgba(63,182,173,.07);border:1px solid rgba(63,182,173,.25)}
 .region-name{font-size:1.05rem;font-weight:600;margin-top:.3rem}
 .region-lbl{font-size:.7rem;color:var(--txt3);letter-spacing:.15em;text-transform:uppercase;font-family:sans-serif;margin-top:.25rem}
 .progress{height:6px;border-radius:3px;background:var(--bg3);overflow:hidden;margin:.4rem 0}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:.5s}
 .progress-fill-r2{background:linear-gradient(90deg,var(--accent),#b090f0)}
+.progress-fill-r3{background:linear-gradient(90deg,var(--accent3),#6fd8cd)}
 
 /* TICKETS */
 .event-list{display:grid;gap:1rem}
@@ -84,10 +86,11 @@ h3{font-size:1rem;color:var(--gold);margin-bottom:.4rem}
 .vote-card{flex:1;min-width:190px;background:var(--bg2);border:2px solid var(--border2);border-radius:var(--rad2);padding:2rem;text-align:center;cursor:pointer;transition:.25s;user-select:none}
 .vote-card:hover{border-color:var(--gold);background:rgba(201,168,76,.04)}
 .vote-card.selected{border-color:var(--gold2);background:rgba(201,168,76,.1)}
-.vote-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.vote-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem}
 .vstat{text-align:center;padding:1rem;border-radius:12px}
 .vstat.r1{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2)}
 .vstat.r2{background:rgba(138,111,212,.06);border:1px solid rgba(138,111,212,.2)}
+.vstat.r3{background:rgba(63,182,173,.06);border:1px solid rgba(63,182,173,.2)}
 .vstat-num{font-size:1.8rem;font-weight:700}
 .vstat-lbl{font-size:.75rem;color:var(--txt3);margin-top:.2rem;font-family:sans-serif}
 
@@ -380,7 +383,7 @@ async function loadHome(){
   try{
     const [todayEv,all]=await Promise.all([api('GET','/events/voting'),api('GET','/events')]);
     if(todayEv){
-      let hv={r1Count:0,r2Count:0};
+      let hv={r1Count:0,r2Count:0,r3Count:0};
       try{hv=await api('GET','/votes/'+todayEv.id);}catch(e){}
 
       te.innerHTML=`<div class="today-card">
@@ -398,6 +401,13 @@ async function loadHome(){
             <div class="region-name" style="color:var(--accent)">${todayEv.region2}</div>
             <div style="font-size:1.8rem;font-weight:700;color:var(--accent);margin:.3rem 0">${hv.r2Count||0}</div>
             <div class="region-lbl">2-Қарсылас</div>
+          </div>
+          <div style="font-size:1.7rem;color:var(--txt3);flex-shrink:0">⚔</div>
+          <div class="region-box r3-box">
+            <div style="font-size:1.3rem">🏴</div>
+            <div class="region-name" style="color:var(--accent3)">${todayEv.region3}</div>
+            <div style="font-size:1.8rem;font-weight:700;color:var(--accent3);margin:.3rem 0">${hv.r3Count||0}</div>
+            <div class="region-lbl">3-Қарсылас</div>
           </div>
         </div>
         ${todayEv.poetsInfo?`<div class="poet-info-box">${todayEv.poetsInfo}</div>`:''}
@@ -421,7 +431,9 @@ async function loadHome(){
           <div style="font-size:.73rem;color:var(--txt3);letter-spacing:.1em;margin-bottom:.4rem;font-family:sans-serif">${fd(ev.date)} · ${ev.time}</div>
           <div style="color:var(--gold);margin-bottom:.2rem">${ev.region1}</div>
           <div style="color:var(--txt3);font-size:.8rem;margin-bottom:.2rem">vs</div>
-          <div style="color:var(--accent);margin-bottom:.7rem">${ev.region2}</div>
+          <div style="color:var(--accent);margin-bottom:.2rem">${ev.region2}</div>
+          <div style="color:var(--txt3);font-size:.8rem;margin-bottom:.2rem">vs</div>
+          <div style="color:var(--accent3);margin-bottom:.7rem">${ev.region3}</div>
           <span class="tag tag-gold">${(ev.ticketPrice||0).toLocaleString('ru')} ₸</span>
         </div>`;
       });
@@ -447,7 +459,7 @@ async function loadTickets(){
         <div class="event-poster">${ev.poster?`<img src="${ev.poster}">`:'📜'}</div>
         <div>
           <div style="font-size:.72rem;color:var(--txt3);letter-spacing:.1em;margin-bottom:.25rem;font-family:sans-serif">${fd(ev.date)} · ${ev.time||'19:00'}</div>
-          <div style="margin-bottom:.4rem"><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .3rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span></div>
+          <div style="margin-bottom:.4rem"><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .3rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span> <span style="color:var(--txt3);margin:0 .3rem">vs</span> <span style="color:var(--accent3)">${ev.region3}</span></div>
           ${ev.poetsInfo?`<div style="font-size:.8rem;color:var(--txt3);margin-bottom:.3rem">${ev.poetsInfo.slice(0,80)}${ev.poetsInfo.length>80?'...':''}</div>`:''}
           <div class="progress" style="max-width:180px"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,#c94,#e84)"></div></div>
           <div style="font-size:.72rem;color:var(--txt3);font-family:sans-serif">${rem>0 ? `${rem} орын қалды` : 'Билеттер сатылып кетті'}</div>
@@ -466,7 +478,7 @@ function openBuy(ev){
   showModal(`<div class="modal-title">📜 Дуэль туралы</div>
     <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.25);border-radius:14px;padding:1.2rem;margin-bottom:1.1rem">
       <div style="font-size:.75rem;color:var(--gold);font-family:sans-serif;letter-spacing:.1em;margin-bottom:.4rem">${fd(ev.date)} · ${ev.time||'19:00'}</div>
-      <div style="font-size:1.1rem;font-weight:600"><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .5rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span></div>
+      <div style="font-size:1.1rem;font-weight:600"><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .5rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span> <span style="color:var(--txt3);margin:0 .5rem">vs</span> <span style="color:var(--accent3)">${ev.region3}</span></div>
     </div>
     ${ev.poetsInfo?`
     <div style="margin-bottom:1.1rem">
@@ -517,7 +529,7 @@ function _seatSummaryHTML(){
 function _renderHallModal(){
   const ev=window._selEv;
   showModal(`<div class="modal-title">🎟 Орын таңдаңыз</div>
-    <div style="font-size:.78rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.8rem">${fd(ev.date)} · ${ev.time||'19:00'} — <span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span></div>
+    <div style="font-size:.78rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.8rem">${fd(ev.date)} · ${ev.time||'19:00'} — <span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span> vs <span style="color:var(--accent3)">${ev.region3}</span></div>
     <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:.6rem .8rem;margin-bottom:.9rem;font-size:.78rem;color:var(--txt2);line-height:1.6"><strong style="color:var(--gold)">Ескерту:</strong> сайттағы орындар сызбасы дуэльдер өтетін жердегі нақты орын орналасуынан өзгешелеу болуы мүмкін.</div>
     <div id="hallWrap">${buildHallHTML(ev,{selectedKeys:_selSeats})}</div>
     <div id="pubSeatSummary" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.8rem;margin:.8rem 0">${_seatSummaryHTML()}</div>
@@ -538,13 +550,13 @@ window._proceedSeatPayment=function(){
     const msg=encodeURIComponent(
       `Сәлем! Орын брондағым келеді:\n`+
       `📅 ${fd(ev.date)} ${ev.time||'19:00'}\n`+
-      `🏆 ${ev.region1} vs ${ev.region2}\n`+
+      `🏆 ${ev.region1} vs ${ev.region2} vs ${ev.region3}\n`+
       `💺 Орындар: №${keys.join(', №')}\n`+
       `💰 Жиыны: ${total.toLocaleString('ru')} ₸\nЧекті жіберемін.`
     );
     showModal(`<div class="modal-title">💳 Төлем</div>
       <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:1rem;margin-bottom:1rem">
-        <div style="font-size:.8rem;color:var(--gold);margin-bottom:.3rem">${fd(ev.date)} · ${ev.region1} vs ${ev.region2}</div>
+        <div style="font-size:.8rem;color:var(--gold);margin-bottom:.3rem">${fd(ev.date)} · ${ev.region1} vs ${ev.region2} vs ${ev.region3}</div>
         <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">${keys.map(k=>`<span class="tag tag-gold">№${k}</span>`).join('')}</div>
         <div style="font-size:1.3rem;color:var(--gold2);font-weight:700">${total.toLocaleString('ru')} ₸</div>
       </div>
@@ -571,16 +583,17 @@ async function loadVote(){
 async function renderVote(ev){
   const el=document.getElementById('voteContent');
   const vs=vSess[ev.id]||{};
-  let votes={r1Count:0,r2Count:0};
+  let votes={r1Count:0,r2Count:0,r3Count:0};
   try{votes=await api('GET','/votes/'+ev.id);}catch(e){}
-  const tot=(votes.r1Count||0)+(votes.r2Count||0);
+  const tot=(votes.r1Count||0)+(votes.r2Count||0)+(votes.r3Count||0);
 
-  const r1p=tot?Math.round((votes.r1Count||0)/tot*100):50;
-  const r2p=tot?Math.round((votes.r2Count||0)/tot*100):50;
+  const r1p=tot?Math.round((votes.r1Count||0)/tot*100):33;
+  const r2p=tot?Math.round((votes.r2Count||0)/tot*100):33;
+  const r3p=tot?Math.round((votes.r3Count||0)/tot*100):34;
 
   let h=`<div class="card" style="margin-bottom:1.3rem;padding:1.1rem 1.4rem">
     <div style="font-size:.73rem;color:var(--gold);letter-spacing:.2em;font-family:sans-serif;margin-bottom:.3rem">БҮГІНГІ ДУЭЛЬ · ${fd(ev.date)} · ${ev.time}</div>
-    <div><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .4rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span></div>
+    <div><span style="color:var(--gold)">${ev.region1}</span> <span style="color:var(--txt3);margin:0 .4rem">vs</span> <span style="color:var(--accent)">${ev.region2}</span> <span style="color:var(--txt3);margin:0 .4rem">vs</span> <span style="color:var(--accent3)">${ev.region3}</span></div>
   </div>
   <div class="vote-stats">
     <div class="vstat r1">
@@ -593,9 +606,16 @@ async function renderVote(ev){
       <div class="vstat-lbl">${ev.region2}</div>
       <div style="font-size:.7rem;color:var(--accent);margin-top:.3rem;font-family:sans-serif">${r2p}%</div>
     </div>
+    <div class="vstat r3">
+      <div class="vstat-num" style="color:var(--accent3)">${votes.r3Count||0}</div>
+      <div class="vstat-lbl">${ev.region3}</div>
+      <div style="font-size:.7rem;color:var(--accent3);margin-top:.3rem;font-family:sans-serif">${r3p}%</div>
+    </div>
   </div>
-  <div style="height:6px;border-radius:3px;background:rgba(138,111,212,.2);overflow:hidden;margin-bottom:1.3rem">
-    <div style="height:100%;width:${r1p}%;background:var(--gold);border-radius:3px;transition:.4s"></div>
+  <div style="height:6px;border-radius:3px;background:var(--bg3);overflow:hidden;margin-bottom:1.3rem;display:flex">
+    <div style="height:100%;width:${r1p}%;background:var(--gold);transition:.4s"></div>
+    <div style="height:100%;width:${r2p}%;background:var(--accent);transition:.4s"></div>
+    <div style="height:100%;width:${r3p}%;background:var(--accent3);transition:.4s"></div>
   </div>
 `;
 
@@ -610,6 +630,11 @@ async function renderVote(ev){
         <div style="font-size:1.9rem;margin-bottom:.7rem">🏴</div>
         <div style="font-size:.95rem;color:var(--accent);font-weight:600">${ev.region2}</div>
         <div style="font-size:.76rem;color:var(--txt3);margin-top:.25rem">2-өңір</div>
+      </div>
+      <div class="vote-card ${vs.choice===3?'selected':''}" onclick="selVote('${ev.id}',3)">
+        <div style="font-size:1.9rem;margin-bottom:.7rem">🏴</div>
+        <div style="font-size:.95rem;color:var(--accent3);font-weight:600">${ev.region3}</div>
+        <div style="font-size:.76rem;color:var(--txt3);margin-top:.25rem">3-өңір</div>
       </div>
     </div>`;
   if(vs.choice&&!vs.paid){
@@ -627,13 +652,13 @@ function openVoteKaspi(eid){
   const choice=vs.choice;
   if(!choice){toast('Алдымен өңірді таңдаңыз','err');return;}
   Promise.all([api('GET','/events/'+eid),api('GET','/settings/public')]).then(([ev,s])=>{
-    const perRegionLink=choice===2?ev.kaspiLink2:ev.kaspiLink1;
+    const perRegionLink=choice===3?ev.kaspiLink3:choice===2?ev.kaspiLink2:ev.kaspiLink1;
     const merchant=s.kaspi_merchant||'';
     let kaspiUrl=perRegionLink||ev.kaspiLink||s.kaspi_link||'';
     if(!kaspiUrl&&merchant) kaspiUrl=`https://kaspi.kz/pay/index.html?service_id=${merchant}`;
     if(!kaspiUrl) kaspiUrl='https://kaspi.kz/pay';
-    const regionName=choice===2?ev.region2:ev.region1;
-    const regionColor=choice===2?'var(--accent)':'var(--gold)';
+    const regionName=choice===3?ev.region3:choice===2?ev.region2:ev.region1;
+    const regionColor=choice===3?'var(--accent3)':choice===2?'var(--accent)':'var(--gold)';
     showModal(`<div class="modal-title">💳 Дауыс беру үшін төлем</div>
       <div style="text-align:center;padding:1rem 0 .5rem">
         <div style="font-size:2.5rem;margin-bottom:.5rem">🗳</div>
@@ -750,8 +775,8 @@ async function aEvents(){
     const evs=await api('GET','/events');
     c.innerHTML=`<div class="admin-hdr"><h2 style="margin:0">Дуэльді басқару</h2><button class="btn btn-gold btn-sm" onclick="openEvModal(null)">+ Келесі жекпе-жек</button></div>
     ${!evs.length?'<div class="empty"><div class="empty-icon">📅</div><div class="empty-msg">Дуэль жоқ. Жаңасын қосыңыз.</div></div>':
-    `<div class="tbl-wrap"><table><thead><tr><th>Күні</th><th>Уақыт</th><th>1-өңір</th><th>2-өңір</th><th>Баға</th><th>Орын</th><th>Белсенді</th><th></th></tr></thead><tbody>
-    ${evs.map(ev=>`<tr><td>${fd(ev.date)}</td><td>${ev.time}</td><td style="color:var(--gold)">${ev.region1}</td><td style="color:var(--accent)">${ev.region2}</td><td>${(ev.ticketPrice||0).toLocaleString('ru')} ₸</td><td>${ev.remainingTickets}/${ev.totalTickets}</td><td><span class="tag ${ev.votingOpen?'tag-green':'tag-red'}">${ev.votingOpen?'Дауыс ашық':'Жабық'}</span><br><span class="tag ${ev.active?'tag-green':'tag-red'}" style="margin-top:.25rem">${ev.active?'Белсенді':'Жасырылған'}</span></td>
+    `<div class="tbl-wrap"><table><thead><tr><th>Күні</th><th>Уақыт</th><th>1-өңір</th><th>2-өңір</th><th>3-өңір</th><th>Баға</th><th>Орын</th><th>Белсенді</th><th></th></tr></thead><tbody>
+    ${evs.map(ev=>`<tr><td>${fd(ev.date)}</td><td>${ev.time}</td><td style="color:var(--gold)">${ev.region1}</td><td style="color:var(--accent)">${ev.region2}</td><td style="color:var(--accent3)">${ev.region3}</td><td>${(ev.ticketPrice||0).toLocaleString('ru')} ₸</td><td>${ev.remainingTickets}/${ev.totalTickets}</td><td><span class="tag ${ev.votingOpen?'tag-green':'tag-red'}">${ev.votingOpen?'Дауыс ашық':'Жабық'}</span><br><span class="tag ${ev.active?'tag-green':'tag-red'}" style="margin-top:.25rem">${ev.active?'Белсенді':'Жасырылған'}</span></td>
     <td><div class="td-act"><button class="btn btn-ghost btn-sm" onclick='openEvModal(${JSON.stringify(ev)})'>✏</button><button class="btn btn-danger btn-sm" onclick="delEv('${ev.id}')">✕</button></div></td></tr>`).join('')}
     </tbody></table></div>`}`;
   }catch(e){c.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-msg">${e.message}</div></div>`;}
@@ -769,6 +794,7 @@ window.openEvModal=function(ev){
       <div class="form-group"><label>1-өңір *</label><input id="ef-r1" value="${d.region1||''}" placeholder="Алматы облысы"></div>
       <div class="form-group"><label>2-өңір *</label><input id="ef-r2" value="${d.region2||''}" placeholder="Шымкент қаласы"></div>
     </div>
+    <div class="form-group"><label>3-өңір *</label><input id="ef-r3" value="${d.region3||''}" placeholder="Түркістан облысы"></div>
     <div class="form-group"><label>Кеш қонағы</label><input id="ef-guest" value="${d.guest||''}" placeholder="Қонақтың аты-жөні, рөлі..."></div>
     <div class="form-group"><label>Ақындар туралы ақпарат</label><textarea id="ef-poets" rows="3" placeholder="Ақындардың аты-жөні, өмірбаяны, жетістіктері...">${d.poetsInfo||''}</textarea></div>
     <div class="form-row">
@@ -786,6 +812,7 @@ window.openEvModal=function(ev){
       <div class="form-group"><label>1-өңірге дауыс — Каспи сілтемесі</label><input id="ef-kaspi1" value="${d.kaspiLink1||''}" placeholder="https://kaspi.kz/pay/..."></div>
       <div class="form-group"><label>2-өңірге дауыс — Каспи сілтемесі</label><input id="ef-kaspi2" value="${d.kaspiLink2||''}" placeholder="https://kaspi.kz/pay/..."></div>
     </div>
+    <div class="form-group"><label>3-өңірге дауыс — Каспи сілтемесі</label><input id="ef-kaspi3" value="${d.kaspiLink3||''}" placeholder="https://kaspi.kz/pay/..."></div>
     <div class="form-group"><label>Билет төлемі үшін жалпы Каспи сілтемесі</label><input id="ef-kaspi" value="${d.kaspiLink||''}" placeholder="https://kaspi.kz/pay/..."></div>
     <div class="form-group"><label>Афиша суреті</label>
       <img id="ef-prev" class="img-prev" ${d.poster?`src="${d.poster}" style="display:block"`:'style="display:none"'}>
@@ -805,8 +832,8 @@ window.openEvModal=function(ev){
 
 window.saveEv=async function(id){
   const g=i=>document.getElementById(i)?.value||'';
-  const body={date:g('ef-date'),time:g('ef-time')||'19:00',region1:g('ef-r1'),region2:g('ef-r2'),guest:g('ef-guest')||null,poetsInfo:g('ef-poets'),ticketPrice:+g('ef-price')||3000,totalTickets:+g('ef-total')||100,remainingTickets:+g('ef-rem'),active:document.getElementById('ef-active')?.checked,votingOpen:document.getElementById('ef-voting')?.checked,kaspiLink:g('ef-kaspi')||null,kaspiLink1:g('ef-kaspi1')||null,kaspiLink2:g('ef-kaspi2')||null,poster:window._evPoster||null};
-  if(!body.date||!body.region1||!body.region2){toast('Күні мен өңірлерді толтырыңыз','err');return;}
+  const body={date:g('ef-date'),time:g('ef-time')||'19:00',region1:g('ef-r1'),region2:g('ef-r2'),region3:g('ef-r3'),guest:g('ef-guest')||null,poetsInfo:g('ef-poets'),ticketPrice:+g('ef-price')||3000,totalTickets:+g('ef-total')||100,remainingTickets:+g('ef-rem'),active:document.getElementById('ef-active')?.checked,votingOpen:document.getElementById('ef-voting')?.checked,kaspiLink:g('ef-kaspi')||null,kaspiLink1:g('ef-kaspi1')||null,kaspiLink2:g('ef-kaspi2')||null,kaspiLink3:g('ef-kaspi3')||null,poster:window._evPoster||null};
+  if(!body.date||!body.region1||!body.region2||!body.region3){toast('Күні мен өңірлерді толтырыңыз','err');return;}
   try{
     if(id) await api('PUT','/events/'+id,body);
     else await api('POST','/events',body);
@@ -829,8 +856,8 @@ async function aVotes(){
     ${!sum.length?'<div class="empty"><div class="empty-icon">🗳</div><div class="empty-msg">Деректер жоқ</div></div>':
     sum.map(s=>`<div class="card" style="margin-bottom:.9rem">
       <div style="font-size:.73rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.35rem">${fd(s.date)}</div>
-      <h3 style="margin-bottom:.8rem"><span style="color:var(--gold)">${s.region1}</span> vs <span style="color:var(--accent)">${s.region2}</span></h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:.8rem;align-items:center;margin-bottom:.8rem">
+      <h3 style="margin-bottom:.8rem"><span style="color:var(--gold)">${s.region1}</span> vs <span style="color:var(--accent)">${s.region2}</span> vs <span style="color:var(--accent3)">${s.region3}</span></h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.8rem;align-items:center;margin-bottom:.8rem">
         <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:.8rem;text-align:center">
           <div style="font-size:1.8rem;font-weight:700;color:var(--gold2)">${s.r1Count}</div>
           <div style="font-size:.72rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.6rem">${s.region1}</div>
@@ -853,6 +880,18 @@ async function aVotes(){
             <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',1)">+1</button>
             <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',10)">+10</button>
             <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r2',100)">+100</button>
+          </div>
+        </div>
+        <div style="background:rgba(63,182,173,.06);border:1px solid rgba(63,182,173,.2);border-radius:10px;padding:.8rem;text-align:center">
+          <div style="font-size:1.8rem;font-weight:700;color:var(--accent3)">${s.r3Count}</div>
+          <div style="font-size:.72rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.6rem">${s.region3}</div>
+          <div style="display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r3',-100)">−100</button>
+            <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r3',-10)">−10</button>
+            <button class="btn btn-danger btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r3',-1)">−1</button>
+            <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r3',1)">+1</button>
+            <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r3',10)">+10</button>
+            <button class="btn btn-gold btn-sm" style="padding:.2rem .5rem;font-size:.75rem" onclick="adjV('${s.eventId}','r3',100)">+100</button>
           </div>
         </div>
         <div style="text-align:center;padding:.5rem">
@@ -966,7 +1005,7 @@ async function aTickets(){
       box.className='card';box.style.marginBottom='.9rem';
       box.innerHTML=`
         <div style="font-size:.73rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.2rem">${fd(ev.date)}</div>
-        <div style="margin-bottom:.9rem"><span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span></div>
+        <div style="margin-bottom:.9rem"><span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span> vs <span style="color:var(--accent3)">${ev.region3}</span></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.8rem">
           <div>
             <label style="font-size:.75rem;color:var(--txt3);display:block;margin-bottom:.3rem">Барлық билет саны</label>
@@ -1017,7 +1056,7 @@ function _renderAdminHall(){
   const free=_countFree(ev.seats||{});
   const total=_countTotal(ev.seats||{})||100;
   showModal(`<div class="modal-title">🎟 Сатылған орындарды белгілеу</div>
-    <div style="font-size:.78rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.8rem">${fd(ev.date)} · <span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span></div>
+    <div style="font-size:.78rem;color:var(--txt3);font-family:sans-serif;margin-bottom:.8rem">${fd(ev.date)} · <span style="color:var(--gold)">${ev.region1}</span> vs <span style="color:var(--accent)">${ev.region2}</span> vs <span style="color:var(--accent3)">${ev.region3}</span></div>
     <p style="color:var(--txt2);font-size:.82rem;margin-bottom:.8rem">Каспиден чек келген орынды басып, «Брондалған» етіп белгілеңіз.</p>
     <div id="adminHallWrap">${buildHallHTML(ev,{isAdmin:true})}</div>
     <div id="adminSeatCount" style="text-align:center;margin-top:.8rem;font-size:.85rem;color:var(--txt2)">Бос: <strong style="color:var(--gold2)">${free}</strong> / ${total}</div>
