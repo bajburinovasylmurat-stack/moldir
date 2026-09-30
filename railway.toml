@@ -1,5 +1,5 @@
 
 [deploy]
 startCommand = "node server.js"
-healthcheckPath = "/api/health"
+healthcheckPath = "/health"
 healthcheckTimeout = 60
